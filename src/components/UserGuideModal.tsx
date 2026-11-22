@@ -20,12 +20,14 @@ import {
   Lightbulb,
   AlertCircle,
   HelpCircle,
+  Printer,
 } from 'lucide-react';
 
 interface UserGuideModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialStep?: number;
+  onOpenExcelGrid?: () => void;
 }
 
 interface GuideStep {
@@ -342,6 +344,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
   isOpen,
   onClose,
   initialStep = 0,
+  onOpenExcelGrid,
 }) => {
   const [activeStep, setActiveStep] = useState<number>(initialStep);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -451,6 +454,17 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
               />
             </div>
 
+            {/* Print / Save PDF Button */}
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="hidden sm:flex items-center space-x-1 px-3 py-1.5 text-xs font-bold rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-all"
+              title="Print Manual or Save as PDF"
+            >
+              <Printer className="w-3.5 h-3.5 text-slate-500" />
+              <span>Print / PDF</span>
+            </button>
+
             {/* Close Button */}
             <button
               onClick={onClose}
@@ -511,6 +525,16 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
 
             {/* Quick Action Button for this step */}
             <div className="flex items-center gap-2">
+              {current.id === 3 && onOpenExcelGrid && (
+                <button
+                  type="button"
+                  onClick={onOpenExcelGrid}
+                  className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md shadow-emerald-600/25 cursor-pointer transition-all animate-pulse"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  <span>Launch Excel Importer 🚀</span>
+                </button>
+              )}
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 hidden sm:inline">
                 High-Resolution Preview Available
               </span>

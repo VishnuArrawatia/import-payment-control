@@ -290,7 +290,14 @@ export const Navbar: React.FC = () => {
       <LoginModal isOpen={showLoginModal} isBlockingGate={false} onClose={() => setShowLoginModal(false)} />
       <UserManagementModal isOpen={showUserModal} onClose={() => setShowUserModal(false)} />
       <ExcelBatchGridModal isOpen={showExcelGrid} onClose={() => setShowExcelGrid(false)} />
-      <UserGuideModal isOpen={showUserGuide} onClose={() => setShowUserGuide(false)} />
+      <UserGuideModal
+        isOpen={showUserGuide}
+        onClose={() => setShowUserGuide(false)}
+        onOpenExcelGrid={() => {
+          setShowUserGuide(false);
+          setShowExcelGrid(true);
+        }}
+      />
     </header>
   );
 };

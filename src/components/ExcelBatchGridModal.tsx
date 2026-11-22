@@ -954,7 +954,7 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Excel se Ctrl+C karein aur seedha Ctrl+V karein. Enter / Arrow keys se navigate karein, ya Excel file upload karein!
+                Copy from Excel (Ctrl+C) and paste directly (Ctrl+V). Use Enter / Arrow keys to navigate, or upload an Excel file.
               </p>
             </div>
           </div>
@@ -1024,7 +1024,7 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center space-x-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                 <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Option 1: Excel se rows copy karein aur yahan Paste karein (Ctrl+V) ya File Upload karein:</span>
+                <span>Batch Import: Copy rows directly from Excel and paste (Ctrl+V) or upload a file:</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {/* File Upload Button */}
@@ -1071,7 +1071,7 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
 
             <textarea
               rows={2}
-              placeholder="Excel me se rows copy karke yahan direct Paste (Ctrl+V) karein..."
+              placeholder="Paste raw Excel rows here (Ctrl+V) or click into any table cell below..."
               value={pasteText}
               onChange={e => {
                 setPasteText(e.target.value);
@@ -1161,13 +1161,32 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
                 )}
               </div>
 
-              <button
-                onClick={handleAddEmptyRow}
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10 transition-all cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5 text-indigo-600" />
-                <span>+ Add Row Manually</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {gridRows.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Clear all rows from this grid?')) {
+                        setGridRows([]);
+                        setPasteText('');
+                        setSaveErrorMsg(null);
+                        setSaveSuccessMsg(null);
+                      }
+                    }}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 transition-all cursor-pointer"
+                    title="Clear all grid rows"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Clear Grid</span>
+                  </button>
+                )}
+                <button
+                  onClick={handleAddEmptyRow}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10 transition-all cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>+ Add Row Manually</span>
+                </button>
+              </div>
             </div>
 
             {/* Grid Table */}
@@ -1192,9 +1211,9 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
                       <td colSpan={columns.length + 3} className="px-4 py-12 text-center text-slate-400 dark:text-slate-500">
                         <div className="flex flex-col items-center justify-center space-y-2">
                           <FileSpreadsheet className="w-8 h-8 opacity-40 text-indigo-500" />
-                          <p className="font-semibold text-xs">Abhi koi rows paste nahi hui hain.</p>
+                          <p className="font-semibold text-xs">No spreadsheet rows pasted yet.</p>
                           <p className="text-[11px] text-slate-400">
-                            Excel me columns copy karke yahan <strong>Ctrl+V</strong> karein, ya <strong>Upload Excel File</strong> karein, ya <strong>+ Add Row Manually</strong> par click karein.
+                            Copy columns in Excel and press <strong>Ctrl+V</strong> here, or click <strong>Upload Excel File</strong>, or click <strong>+ Add Row Manually</strong>.
                           </p>
                         </div>
                       </td>
@@ -1340,7 +1359,7 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
                     {validationSummary.errorCount} errors)
                   </span>
                 ) : (
-                  <span>Excel copy-paste karke direct save karein. Dusre forms bhi active rahenge.</span>
+                  <span>Paste spreadsheet rows directly or edit cells like Excel. Single-entry forms remain available.</span>
                 )}
               </div>
             )}
