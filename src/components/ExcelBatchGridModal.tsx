@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import {
@@ -934,7 +935,7 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-3 sm:p-5">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden transition-colors">
         {/* Modal Header */}
@@ -1374,6 +1375,7 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
           ))}
         </datalist>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
