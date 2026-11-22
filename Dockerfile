@@ -31,7 +31,7 @@ RUN mkdir -p /app/data/backups
 VOLUME ["/app/data"]
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost/api/health || exit 1
+HEALTHCHECK --interval=15s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://127.0.0.1:80/api/health || exit 1
 
 CMD ["node", "server.mjs"]
