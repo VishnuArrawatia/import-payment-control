@@ -1,0 +1,29 @@
+services:
+  import-payment-control:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: import-payment-control
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ipc-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+      - HOST=0.0.0.0
+      - DATA_DIR=/app/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    labels:
+      - "coolify.managed=true"
+      - "coolify.type=application"
+
+volumes:
+  ipc-data:
+    name: import-payment-control-data
