@@ -316,8 +316,8 @@ describe('Sakar Real Ledger Full Audit up to 31-10-2026', () => {
     expect(fspOpenAdvINR).toBeCloseTo(1975769.44, 1);
     expect(Math.abs(fspRealizedFX - 838967.45)).toBeLessThan(0.25);
 
-    // 6. Total Open Payables (Cr) = 6,319.79 USD / 5,43,388.72 INR & Total Open Advances (Dr) = 20,745.09 USD / 19,82,702.44 INR
-    const openAdvances = res.unappliedPayments.filter(c => c.remainingFC > 0);
+    // 6. Total Open Payables (Cr) = 6,319.79 USD / 5,43,388.72 INR & Total Open Advances (Dr) = 20,745.09 USD / 19,82,702.44 INR (Sakar)
+    const openAdvances = res.unappliedPayments.filter(c => c.companyId === 'comp-sakar' && c.remainingFC > 0);
     const totalAdvFC = openAdvances.reduce((s, c) => s + c.remainingFC, 0);
     const totalAdvINR = openAdvances.reduce((s, c) => s + c.remainingFC * c.exactRate, 0);
     expect(totalAdvFC).toBeCloseTo(20745.09, 2);
@@ -326,20 +326,21 @@ describe('Sakar Real Ledger Full Audit up to 31-10-2026', () => {
     // 7. Double-Entry Accounting Identity Proof across ENTIRE company Sakar:
     // (GrossCrINR - GrossDrINR) - (OpenCrBookINR - OpenDrBookINR) === TotalRealizedFX
     const grossCrINR =
-      INITIAL_DATABASE.openingBalances.filter(o => o.balanceType === 'Cr').reduce((s, o) => s + o.amountINR, 0) +
-      INITIAL_DATABASE.commercialInvoices.reduce((s, c) => s + c.purchaseINR, 0);
+      INITIAL_DATABASE.openingBalances.filter(o => o.companyId === 'comp-sakar' && o.balanceType === 'Cr').reduce((s, o) => s + o.amountINR, 0) +
+      INITIAL_DATABASE.commercialInvoices.filter(c => c.companyId === 'comp-sakar').reduce((s, c) => s + c.purchaseINR, 0);
     const grossDrINR =
-      INITIAL_DATABASE.openingBalances.filter(o => o.balanceType === 'Dr').reduce((s, o) => s + o.amountINR, 0) +
-      INITIAL_DATABASE.payments.reduce((s, p) => s + p.inrAmount, 0);
+      INITIAL_DATABASE.openingBalances.filter(o => o.companyId === 'comp-sakar' && o.balanceType === 'Dr').reduce((s, o) => s + o.amountINR, 0) +
+      INITIAL_DATABASE.payments.filter(p => p.companyId === 'comp-sakar').reduce((s, p) => s + p.inrAmount, 0);
 
     const openCrBookINR =
-      Array.from(res.ciStates.values()).reduce((s, c) => s + c.balanceINR, 0) +
-      Array.from(res.openingPayableStates.values()).reduce((s, o) => s + o.balanceINR, 0);
+      Array.from(res.ciStates.values()).filter(s => s.ci.companyId === 'comp-sakar').reduce((s, c) => s + c.balanceINR, 0) +
+      Array.from(res.openingPayableStates.values()).filter(s => s.ob.companyId === 'comp-sakar').reduce((s, o) => s + o.balanceINR, 0);
     const openDrBookINR = totalAdvINR;
 
+    const sakarRealizedFX = res.allocations.filter(a => a.companyId === 'comp-sakar').reduce((s, a) => s + a.realizedGainLossINR, 0);
     const impliedFXFromLedger = (grossCrINR - grossDrINR) - (openCrBookINR - openDrBookINR);
-    expect(Math.abs(impliedFXFromLedger - res.totalRealizedGainLossINR)).toBeLessThan(0.30);
-    expect(Math.abs(res.totalRealizedGainLossINR - 865119.73)).toBeLessThan(0.30);
+    expect(Math.abs(impliedFXFromLedger - sakarRealizedFX)).toBeLessThan(0.30);
+    expect(Math.abs(sakarRealizedFX - 865119.73)).toBeLessThan(0.30);
   });
 });
 
