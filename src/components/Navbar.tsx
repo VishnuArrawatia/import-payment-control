@@ -216,20 +216,19 @@ export const Navbar: React.FC = () => {
           {/* Persistence Status Pill */}
           {isServerConnected ? (
             <div
-              className="flex items-center space-x-2 text-xs px-3 py-1.5 rounded-xl border bg-emerald-50/90 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 shadow-2xs"
-              title={`Persistent Disk Database Active: ${serverStoragePath || 'F:\\Import Payment management\\data\\ipc-database.json'}`}
+              className="flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-xl border bg-emerald-50/90 dark:bg-emerald-950/60 border-emerald-300/80 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 shadow-2xs"
+              title="Cloud Database Synced & Live"
             >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="font-semibold text-[11px]">F:\ Drive Live</span>
-              <HardDrive className="w-3.5 h-3.5 opacity-75" />
+              <span className="font-bold text-[11px]">Cloud Live</span>
             </div>
           ) : (
             <button
               onClick={() => connectDiskFile()}
-              className={`flex items-center space-x-2 text-xs px-3 py-1.5 rounded-xl border transition-all ${
+              className={`flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-xl border transition-all ${
                 isFileConnected
                   ? 'bg-emerald-50/80 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 shadow-2xs'
                   : 'bg-amber-50/80 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 shadow-2xs'
@@ -252,22 +251,9 @@ export const Navbar: React.FC = () => {
                   }`}
                 ></span>
               </span>
-              <span className="font-semibold text-[11px]">
+              <span className="font-bold text-[11px]">
                 {isFileConnected ? (activeFileName ? activeFileName.slice(0, 12) + '...' : 'Disk Synced') : 'Local Cache'}
               </span>
-              <HardDrive className="w-3.5 h-3.5 opacity-70" />
-            </button>
-          )}
-
-          {/* Admin-only Reset to Initial Sakar Seed Dataset */}
-          {permissions.canManageBackups && (
-            <button
-              onClick={resetToDemoSeed}
-              className="flex items-center space-x-1 text-[11px] font-medium px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200/80 dark:border-white/10 transition-colors shadow-2xs cursor-pointer"
-              title="Reset to Sakar FY 26-27 Seed Dataset (Admin Only)"
-            >
-              <RotateCcw className="w-3 h-3 text-slate-500 dark:text-slate-400" />
-              <span>Reset Seed</span>
             </button>
           )}
         </div>

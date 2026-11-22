@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   PieChart,
   Scale,
+  Search,
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -36,6 +37,7 @@ export const DashboardView: React.FC = () => {
   const [currencyFilter, setCurrencyFilter] = useState<string>('ALL');
   const [supplierFilter, setSupplierFilter] = useState<string>('ALL');
   const [bankAccountFilter, setBankAccountFilter] = useState<string>('ALL');
+  const [tableSearch, setTableSearch] = useState<string>('');
 
   // Drilldown modal state
   const [drilldownModal, setDrilldownModal] = useState<{
@@ -453,6 +455,17 @@ export const DashboardView: React.FC = () => {
     });
   }, [db, engineResult, selectedCompanyId, currencyFilter, supplierFilter, bankAccountFilter, asOfDate]);
 
+  const filteredPartyWiseData = useMemo(() => {
+    if (!tableSearch.trim()) return partyWiseData;
+    const q = tableSearch.toLowerCase().trim();
+    return partyWiseData.filter(r => {
+      const supp = supplierMap.get(r.supplierId);
+      const code = (supp?.vendorCode || '').toLowerCase();
+      const name = (supp?.supplierName || '').toLowerCase();
+      return code.includes(q) || name.includes(q);
+    });
+  }, [partyWiseData, tableSearch, supplierMap]);
+
   // Ageing Breakdown
   const ageingPayables = useMemo(() => {
     const partyMap = new Map<
@@ -552,7 +565,7 @@ export const DashboardView: React.FC = () => {
   }, [engineResult, selectedCompanyId, currencyFilter, supplierFilter, bankAccountFilter, asOfDate]);
 
   const handleExportPartyClosing = () => {
-    const exportData = partyWiseData.map(r => ({
+    const exportData = filteredPartyWiseData.map(r => ({
       Company: companyMap.get(r.companyId)?.code || r.companyId,
       'Vendor Code': supplierMap.get(r.supplierId)?.vendorCode || '',
       Supplier: supplierMap.get(r.supplierId)?.supplierName || '',
@@ -816,115 +829,363 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* Middle Section: Circular Radial Gauge + Operational Quick Badges (Ref Image 1 & 3) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Widget 1: Circular Radial Compliance Dial (Matching Image 1 "Project Status" gauge) */}
-        <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                IDPMS & Customs Health
+
+      {/* 1. Primary Work Desk: Party-Wise Closing Balances Table with Quick Search */}
+      {/* Party-Wise Closing Balances Table */}
+      <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-800/40">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Party-Wise Closing Balances
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                Overall settlement & regulatory compliance meter
-              </p>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300">
+                {filteredPartyWiseData.length} Parties
+              </span>
             </div>
-            <div className="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              <PieChart className="w-4 h-4" />
-            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              Consolidated Dr (Advances) & Cr (Payables) balances with live FX valuation. Click any row for transaction drilldown.
+            </p>
           </div>
-
-          {/* SVG Circular Radial Progress Ring */}
-          <div className="flex items-center justify-center py-4">
-            <div className="relative w-44 h-44 flex items-center justify-center">
-              <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 120 120">
-                {/* Background Track */}
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  strokeWidth="10"
-                  className="stroke-slate-100 dark:stroke-slate-800"
-                  fill="transparent"
-                />
-                {/* Settled / Matched Track (Blue) */}
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  strokeWidth="10"
-                  strokeDasharray={`${(complianceDial.settledPct * 3.14159).toFixed(1)} 314.16`}
-                  strokeDashoffset="0"
-                  strokeLinecap="round"
-                  className="stroke-blue-600 dark:stroke-blue-500 transition-all duration-1000 ease-out"
-                  fill="transparent"
-                />
-                {/* Safe Window Track (Purple) */}
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  strokeWidth="10"
-                  strokeDasharray={`${(complianceDial.safePct * 3.14159).toFixed(1)} 314.16`}
-                  strokeDashoffset={`-${(complianceDial.settledPct * 3.14159).toFixed(1)}`}
-                  strokeLinecap="round"
-                  className="stroke-purple-600 dark:stroke-purple-500 transition-all duration-1000 ease-out"
-                  fill="transparent"
-                />
-                {/* At Risk Track (Coral/Rose) */}
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  strokeWidth="10"
-                  strokeDasharray={`${(complianceDial.atRiskPct * 3.14159).toFixed(1)} 314.16`}
-                  strokeDashoffset={`-${((complianceDial.settledPct + complianceDial.safePct) * 3.14159).toFixed(1)}`}
-                  strokeLinecap="round"
-                  className="stroke-rose-500 dark:stroke-rose-400 transition-all duration-1000 ease-out"
-                  fill="transparent"
-                />
-              </svg>
-
-              {/* Center Gauge Stats */}
-              <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                  {complianceDial.settledPct}%
-                </span>
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  Settled Score
-                </span>
-              </div>
+          <div className="flex items-center gap-2.5">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search vendor or code..."
+                value={tableSearch}
+                onChange={e => setTableSearch(e.target.value)}
+                className="pl-8 pr-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-48 sm:w-56 shadow-2xs"
+              />
             </div>
-          </div>
-
-          {/* Breakdown Pills (Ref Image 1) */}
-          <div className="space-y-2 border-t border-slate-200/70 dark:border-white/10 pt-3">
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                <span className="text-slate-600 dark:text-slate-300 font-medium">100% Settled / Knocked Off</span>
-              </div>
-              <span className="font-bold font-mono text-slate-900 dark:text-white">{complianceDial.settledPct}%</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
-                <span className="text-slate-600 dark:text-slate-300 font-medium">Within Safe 180d Window</span>
-              </div>
-              <span className="font-bold font-mono text-slate-900 dark:text-white">{complianceDial.safePct}%</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                <span className="text-slate-600 dark:text-slate-300 font-medium">Critical / Overdue Attention</span>
-              </div>
-              <span className="font-bold font-mono text-rose-600 dark:text-rose-400">{complianceDial.atRiskPct}%</span>
-            </div>
+            <button
+              onClick={handleExportPartyClosing}
+              className="flex items-center space-x-1.5 text-xs font-bold px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export</span>
+            </button>
           </div>
         </div>
 
-        {/* Widget 2: Operational Action Cards Grid */}
-        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200/80 dark:border-white/10">
+              <tr>
+                <th className="px-4 py-3">Company</th>
+                <th className="px-4 py-3">Supplier Name</th>
+                <th className="px-3 py-3">Curr</th>
+                <th className="px-3 py-3 text-right bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300">Dr FC (Advance/Excess)</th>
+                <th className="px-3 py-3 text-right bg-amber-50/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300">Cr FC (Payable)</th>
+                <th className="px-3 py-3 text-right font-black">Net FC</th>
+                <th className="px-3 py-3 text-right bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300">Dr INR</th>
+                <th className="px-3 py-3 text-right bg-amber-50/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300">Cr INR</th>
+                <th className="px-3 py-3 text-right font-black">Net INR (Book)</th>
+                <th className="px-4 py-3 text-right font-black text-indigo-700 dark:text-indigo-400">Net INR (Valuation)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-300">
+              {filteredPartyWiseData.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-8 text-center text-slate-400 dark:text-slate-500">
+                    No transactions match current filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredPartyWiseData.map((row, idx) => {
+                  const comp = companyMap.get(row.companyId);
+                  const supp = supplierMap.get(row.supplierId);
+                  return (
+                    <tr
+                      key={idx}
+                      className="hover:bg-slate-50/90 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      onClick={() => {
+                        const items: Array<{ refNo: string; type: string; date: string; fc: number; inr: number; details: string }> = [];
+
+                        // Opening Balances
+                        db.openingBalances
+                          .filter(ob => ob.companyId === row.companyId && ob.supplierId === row.supplierId && ob.currency === row.currency && (ob.referenceDate || '') <= asOfDate)
+                          .forEach(ob => {
+                            const obSt = engineResult.openingPayableStates.get(ob.id);
+                            items.push({
+                              refNo: ob.referenceNo,
+                              type: `Opening (${ob.balanceType})`,
+                              date: ob.originalDocumentDate || ob.referenceDate,
+                              fc: ob.amountFC,
+                              inr: ob.amountINR,
+                              details: ob.balanceType === 'Cr'
+                                ? `Rate: ${ob.rate} | Open Bal FC: ${formatFC(obSt?.balanceFC)}`
+                                : `Advance B/F | Rate: ${ob.rate}`,
+                            });
+                          });
+
+                        // CIs
+                        db.commercialInvoices
+                          .filter(c => c.companyId === row.companyId && c.supplierId === row.supplierId && c.currency === row.currency && (c.ciDate || '') <= asOfDate)
+                          .forEach(c => {
+                            const st = engineResult.ciStates.get(c.id);
+                            items.push({
+                              refNo: c.ciNo,
+                              type: 'Purchase / CI',
+                              date: c.ciDate,
+                              fc: c.ciValueFC,
+                              inr: c.purchaseINR,
+                              details: `BOE: ${c.boeNo} @ ${c.boeExchangeRate} | Bal FC: ${formatFC(st?.balanceFC)}`,
+                            });
+                          });
+
+                        // Payments
+                        db.payments
+                          .filter(p => p.companyId === row.companyId && p.supplierId === row.supplierId && p.currency === row.currency && (p.paymentDate || '') <= asOfDate)
+                          .forEach(p => {
+                            const b = bankMap.get(p.bankAccountId);
+                            const bankLabel = b ? `${b.bankName} - ${b.accountNumber.slice(-4)}` : p.bankAccountId;
+                            items.push({
+                              refNo: p.bankReferenceNo || p.id,
+                              type: `Payment (${p.paymentAgainst})`,
+                              date: p.paymentDate,
+                              fc: p.amountFC,
+                              inr: p.inrAmount,
+                              details: `Rate: ${p.actualExchangeRate} | Bank: ${bankLabel}`,
+                            });
+                          });
+
+                        // Debit Notes
+                        db.debitNotes
+                          .filter(d => d.companyId === row.companyId && d.supplierId === row.supplierId && d.currency === row.currency && (d.dnDate || '') <= asOfDate)
+                          .forEach(d => {
+                            items.push({
+                              refNo: d.dnNo,
+                              type: 'Debit Note',
+                              date: d.dnDate,
+                              fc: d.amountFC,
+                              inr: d.inrAmount,
+                              details: `${d.reason} | Status: ${d.status}`,
+                            });
+                          });
+
+                        items.sort((a, b) => a.date.localeCompare(b.date));
+
+                        setDrilldownModal({
+                          title: `${supp?.supplierName} (${row.currency}) - Underlying Transactions`,
+                          items,
+                        });
+                      }}
+                    >
+                      <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{comp?.code}</td>
+                      <td className="px-4 py-3">
+                        <span className="font-semibold text-slate-900 dark:text-white">{supp?.supplierName}</span>
+                        <span className="text-slate-400 font-mono text-[11px] ml-1.5">({supp?.vendorCode})</span>
+                      </td>
+                      <td className="px-3 py-3 font-bold text-slate-700 dark:text-slate-300">{row.currency}</td>
+                      <td className="px-3 py-3 text-right font-semibold font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50/20 dark:bg-emerald-950/10">
+                        {formatFC(row.drFC)}
+                      </td>
+                      <td className="px-3 py-3 text-right font-semibold font-mono text-amber-700 dark:text-amber-400 bg-amber-50/20 dark:bg-amber-950/10">
+                        {formatFC(row.crFC)}
+                      </td>
+                      <td className="px-3 py-3 text-right font-bold font-mono text-slate-900 dark:text-white">
+                        {formatFC(Math.abs(row.netFC))} <span className="text-[10px] text-slate-400 font-sans">{row.netFC > 0 ? 'Cr' : row.netFC < 0 ? 'Dr' : ''}</span>
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-50/20 dark:bg-emerald-950/10">
+                        {formatINR(row.drINR)}
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono text-amber-800 dark:text-amber-300 bg-amber-50/20 dark:bg-amber-950/10">
+                        {formatINR(row.crINR)}
+                      </td>
+                      <td className="px-3 py-3 text-right font-bold font-mono text-slate-900 dark:text-white">
+                        {formatINR(row.netBookINR)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold font-mono text-indigo-700 dark:text-indigo-400">
+                        {row.latestValuationRate > 0 ? formatINR(row.netValINR) : <span className="text-[10px] text-slate-400 font-sans">Book (No rate)</span>}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+            {filteredPartyWiseData.length > 0 && (
+              <tfoot className="bg-slate-100/90 dark:bg-slate-800/90 font-bold text-slate-900 dark:text-white border-t-2 border-slate-300 dark:border-white/20">
+                <tr>
+                  <td colSpan={3} className="px-4 py-2.5 text-right uppercase tracking-wider">
+                    Total:
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-950/30">
+                    {formatFC(filteredPartyWiseData.reduce((s, r) => s + r.drFC, 0))}
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-mono text-amber-800 dark:text-amber-300 bg-amber-100/50 dark:bg-amber-950/30">
+                    {formatFC(filteredPartyWiseData.reduce((s, r) => s + r.crFC, 0))}
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-mono">
+                    {formatFC(Math.abs(filteredPartyWiseData.reduce((s, r) => s + r.netFC, 0)))}{' '}
+                    <span className="text-[10px] font-sans">
+                      {filteredPartyWiseData.reduce((s, r) => s + r.netFC, 0) >= 0 ? 'Cr' : 'Dr'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-950/30">
+                    {formatINR(filteredPartyWiseData.reduce((s, r) => s + r.drINR, 0))}
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-mono text-amber-800 dark:text-amber-300 bg-amber-100/50 dark:bg-amber-950/30">
+                    {formatINR(filteredPartyWiseData.reduce((s, r) => s + r.crINR, 0))}
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-mono">
+                    {formatINR(filteredPartyWiseData.reduce((s, r) => s + r.netBookINR, 0))}
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-mono text-indigo-700 dark:text-indigo-400">
+                    {formatINR(filteredPartyWiseData.reduce((s, r) => s + r.netValINR, 0))}
+                  </td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+      </div>
+
+
+      {/* 2. Ageing Breakdown: Payables (Cr) & Advances (Dr) */}
+      {/* Ageing Tables: Payables (Cr) & Advances (Dr) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 overflow-hidden">
+          <div className="p-4 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/70 dark:bg-slate-800/40 flex items-center justify-between">
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Ageing: Payables (Cr)
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Aged from {db.settings.ageingBaseDateForPayables === 'boeDate' ? 'BOE Date' : 'CI Date'}
+              </p>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800 rounded-full">
+              &gt; 90 Days Alert
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200/80 dark:border-white/10 text-[10px]">
+                <tr>
+                  <th className="px-4 py-2.5">Supplier</th>
+                  <th className="px-2.5 py-2.5">Curr</th>
+                  <th className="px-2.5 py-2.5 text-right font-mono">&lt; 30d</th>
+                  <th className="px-2.5 py-2.5 text-right font-mono">31-60d</th>
+                  <th className="px-2.5 py-2.5 text-right font-mono">61-90d</th>
+                  <th className="px-2.5 py-2.5 text-right font-bold text-rose-700 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/20 font-mono">&gt; 90d</th>
+                  <th className="px-4 py-2.5 text-right font-bold font-mono">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-300">
+                {ageingPayables.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-3 py-6 text-center text-slate-400 dark:text-slate-500">
+                      No open payables.
+                    </td>
+                  </tr>
+                ) : (
+                  ageingPayables.map((r, i) => {
+                    const supp = supplierMap.get(r.supplierId);
+                    return (
+                      <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-4 py-2.5 font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">
+                          {supp?.supplierName}
+                        </td>
+                        <td className="px-2.5 py-2.5 font-bold text-slate-700 dark:text-slate-300">{r.currency}</td>
+                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b1)}</td>
+                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b2)}</td>
+                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b3)}</td>
+                        <td className={`px-2.5 py-2.5 text-right font-bold font-mono ${
+                          r.b4 > 0 ? 'bg-rose-100/70 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' : 'text-slate-400'
+                        }`}>
+                          {formatFC(r.b4)}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-bold font-mono text-slate-900 dark:text-white">{formatFC(r.total)}</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 overflow-hidden">
+          <div className="p-4 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/70 dark:bg-slate-800/40 flex items-center justify-between">
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Ageing: Advances & Excess (Dr)
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Aged from unapplied remittance date (FIFO)</p>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 rounded-full">
+              Debit Position
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200/80 dark:border-white/10 text-[10px]">
+                <tr>
+                  <th className="px-4 py-2.5">Supplier</th>
+                  <th className="px-2.5 py-2.5">Curr</th>
+                  <th className="px-2.5 py-2.5 text-right font-mono">&lt; 30d</th>
+                  <th className="px-2.5 py-2.5 text-right font-mono">31-60d</th>
+                  <th className="px-2.5 py-2.5 text-right font-mono">61-90d</th>
+                  <th className="px-2.5 py-2.5 text-right font-bold text-rose-700 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/20 font-mono">&gt; 90d</th>
+                  <th className="px-4 py-2.5 text-right font-bold font-mono">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-300">
+                {ageingAdvances.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-3 py-6 text-center text-slate-400 dark:text-slate-500">
+                      No unapplied advances.
+                    </td>
+                  </tr>
+                ) : (
+                  ageingAdvances.map((r, i) => {
+                    const supp = supplierMap.get(r.supplierId);
+                    return (
+                      <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-4 py-2.5 font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">
+                          {supp?.supplierName}
+                        </td>
+                        <td className="px-2.5 py-2.5 font-bold text-slate-700 dark:text-slate-300">{r.currency}</td>
+                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b1)}</td>
+                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b2)}</td>
+                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b3)}</td>
+                        <td className={`px-2.5 py-2.5 text-right font-bold font-mono ${
+                          r.b4 > 0 ? 'bg-rose-100/70 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' : 'text-slate-400'
+                        }`}>
+                          {formatFC(r.b4)}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-bold font-mono text-slate-900 dark:text-white">{formatFC(r.total)}</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      {/* 3. Operational & Regulatory Desk */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              Operational Status & Regulatory Compliance
+            </h3>
+            <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
+              (IDPMS 180-Day Tracker, Shipping Line Container Radar & Purchase Desk)
+            </span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-2xl bg-white/95 dark:bg-slate-900/80 border border-slate-200/80 dark:border-white/10 text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <PieChart className="w-3.5 h-3.5 text-indigo-500" />
+            <span>IDPMS Knock-off Score: <strong className="text-slate-900 dark:text-white">{complianceDial.settledPct}%</strong> ({complianceDial.settledPayments}/{complianceDial.totalPayments} Settled)</span>
+          </div>
+        </div>
+
+        {/* 4 Sleek Operational Cards in 4 columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card A: Pending Adv on Open PIs */}
           <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-sm flex flex-col justify-between hover:border-indigo-400/50 transition-all">
             <div className="flex items-center justify-between">
@@ -1019,6 +1280,7 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
+      {/* 4. Dual Operational Radars */}
       {/* Dual Operational Radars: RBI 180-Day IDPMS & Container Detention */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Radar 1: RBI IDPMS 180-Day Advance Remittance Compliance */}
@@ -1199,321 +1461,6 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* Party-Wise Closing Balances Table */}
-      <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 overflow-hidden">
-        <div className="p-5 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/40">
-          <div>
-            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-              Party-Wise Closing Balances
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-              Consolidated Dr / Cr balances in foreign currency, book INR, and revalued at latest month-end rate (click row to drill down)
-            </p>
-          </div>
-          <button
-            onClick={handleExportPartyClosing}
-            className="flex items-center space-x-1.5 text-xs font-bold px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export to Excel</span>
-          </button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left border-collapse">
-            <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200/80 dark:border-white/10">
-              <tr>
-                <th className="px-4 py-3">Company</th>
-                <th className="px-4 py-3">Supplier Name</th>
-                <th className="px-3 py-3">Curr</th>
-                <th className="px-3 py-3 text-right bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300">Dr FC (Advance/Excess)</th>
-                <th className="px-3 py-3 text-right bg-amber-50/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300">Cr FC (Payable)</th>
-                <th className="px-3 py-3 text-right font-black">Net FC</th>
-                <th className="px-3 py-3 text-right bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300">Dr INR</th>
-                <th className="px-3 py-3 text-right bg-amber-50/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300">Cr INR</th>
-                <th className="px-3 py-3 text-right font-black">Net INR (Book)</th>
-                <th className="px-4 py-3 text-right font-black text-indigo-700 dark:text-indigo-400">Net INR (Valuation)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-300">
-              {partyWiseData.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-slate-400 dark:text-slate-500">
-                    No transactions match current filters.
-                  </td>
-                </tr>
-              ) : (
-                partyWiseData.map((row, idx) => {
-                  const comp = companyMap.get(row.companyId);
-                  const supp = supplierMap.get(row.supplierId);
-                  return (
-                    <tr
-                      key={idx}
-                      className="hover:bg-slate-50/90 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
-                      onClick={() => {
-                        const items: Array<{ refNo: string; type: string; date: string; fc: number; inr: number; details: string }> = [];
-
-                        // Opening Balances
-                        db.openingBalances
-                          .filter(ob => ob.companyId === row.companyId && ob.supplierId === row.supplierId && ob.currency === row.currency && (ob.referenceDate || '') <= asOfDate)
-                          .forEach(ob => {
-                            const obSt = engineResult.openingPayableStates.get(ob.id);
-                            items.push({
-                              refNo: ob.referenceNo,
-                              type: `Opening (${ob.balanceType})`,
-                              date: ob.originalDocumentDate || ob.referenceDate,
-                              fc: ob.amountFC,
-                              inr: ob.amountINR,
-                              details: ob.balanceType === 'Cr'
-                                ? `Rate: ${ob.rate} | Open Bal FC: ${formatFC(obSt?.balanceFC)}`
-                                : `Advance B/F | Rate: ${ob.rate}`,
-                            });
-                          });
-
-                        // CIs
-                        db.commercialInvoices
-                          .filter(c => c.companyId === row.companyId && c.supplierId === row.supplierId && c.currency === row.currency && (c.ciDate || '') <= asOfDate)
-                          .forEach(c => {
-                            const st = engineResult.ciStates.get(c.id);
-                            items.push({
-                              refNo: c.ciNo,
-                              type: 'Purchase / CI',
-                              date: c.ciDate,
-                              fc: c.ciValueFC,
-                              inr: c.purchaseINR,
-                              details: `BOE: ${c.boeNo} @ ${c.boeExchangeRate} | Bal FC: ${formatFC(st?.balanceFC)}`,
-                            });
-                          });
-
-                        // Payments
-                        db.payments
-                          .filter(p => p.companyId === row.companyId && p.supplierId === row.supplierId && p.currency === row.currency && (p.paymentDate || '') <= asOfDate)
-                          .forEach(p => {
-                            const b = bankMap.get(p.bankAccountId);
-                            const bankLabel = b ? `${b.bankName} - ${b.accountNumber.slice(-4)}` : p.bankAccountId;
-                            items.push({
-                              refNo: p.bankReferenceNo || p.id,
-                              type: `Payment (${p.paymentAgainst})`,
-                              date: p.paymentDate,
-                              fc: p.amountFC,
-                              inr: p.inrAmount,
-                              details: `Rate: ${p.actualExchangeRate} | Bank: ${bankLabel}`,
-                            });
-                          });
-
-                        // Debit Notes
-                        db.debitNotes
-                          .filter(d => d.companyId === row.companyId && d.supplierId === row.supplierId && d.currency === row.currency && (d.dnDate || '') <= asOfDate)
-                          .forEach(d => {
-                            items.push({
-                              refNo: d.dnNo,
-                              type: 'Debit Note',
-                              date: d.dnDate,
-                              fc: d.amountFC,
-                              inr: d.inrAmount,
-                              details: `${d.reason} | Status: ${d.status}`,
-                            });
-                          });
-
-                        items.sort((a, b) => a.date.localeCompare(b.date));
-
-                        setDrilldownModal({
-                          title: `${supp?.supplierName} (${row.currency}) - Underlying Transactions`,
-                          items,
-                        });
-                      }}
-                    >
-                      <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{comp?.code}</td>
-                      <td className="px-4 py-3">
-                        <span className="font-semibold text-slate-900 dark:text-white">{supp?.supplierName}</span>
-                        <span className="text-slate-400 font-mono text-[11px] ml-1.5">({supp?.vendorCode})</span>
-                      </td>
-                      <td className="px-3 py-3 font-bold text-slate-700 dark:text-slate-300">{row.currency}</td>
-                      <td className="px-3 py-3 text-right font-semibold font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50/20 dark:bg-emerald-950/10">
-                        {formatFC(row.drFC)}
-                      </td>
-                      <td className="px-3 py-3 text-right font-semibold font-mono text-amber-700 dark:text-amber-400 bg-amber-50/20 dark:bg-amber-950/10">
-                        {formatFC(row.crFC)}
-                      </td>
-                      <td className="px-3 py-3 text-right font-bold font-mono text-slate-900 dark:text-white">
-                        {formatFC(Math.abs(row.netFC))} <span className="text-[10px] text-slate-400 font-sans">{row.netFC > 0 ? 'Cr' : row.netFC < 0 ? 'Dr' : ''}</span>
-                      </td>
-                      <td className="px-3 py-3 text-right font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-50/20 dark:bg-emerald-950/10">
-                        {formatINR(row.drINR)}
-                      </td>
-                      <td className="px-3 py-3 text-right font-mono text-amber-800 dark:text-amber-300 bg-amber-50/20 dark:bg-amber-950/10">
-                        {formatINR(row.crINR)}
-                      </td>
-                      <td className="px-3 py-3 text-right font-bold font-mono text-slate-900 dark:text-white">
-                        {formatINR(row.netBookINR)}
-                      </td>
-                      <td className="px-4 py-3 text-right font-bold font-mono text-indigo-700 dark:text-indigo-400">
-                        {row.latestValuationRate > 0 ? formatINR(row.netValINR) : <span className="text-[10px] text-slate-400 font-sans">Book (No rate)</span>}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-            {partyWiseData.length > 0 && (
-              <tfoot className="bg-slate-100/90 dark:bg-slate-800/90 font-bold text-slate-900 dark:text-white border-t-2 border-slate-300 dark:border-white/20">
-                <tr>
-                  <td colSpan={3} className="px-4 py-2.5 text-right uppercase tracking-wider">
-                    Total:
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-950/30">
-                    {formatFC(partyWiseData.reduce((s, r) => s + r.drFC, 0))}
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-amber-800 dark:text-amber-300 bg-amber-100/50 dark:bg-amber-950/30">
-                    {formatFC(partyWiseData.reduce((s, r) => s + r.crFC, 0))}
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-mono">
-                    {formatFC(Math.abs(partyWiseData.reduce((s, r) => s + r.netFC, 0)))}{' '}
-                    <span className="text-[10px] font-sans">
-                      {partyWiseData.reduce((s, r) => s + r.netFC, 0) >= 0 ? 'Cr' : 'Dr'}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-950/30">
-                    {formatINR(partyWiseData.reduce((s, r) => s + r.drINR, 0))}
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-amber-800 dark:text-amber-300 bg-amber-100/50 dark:bg-amber-950/30">
-                    {formatINR(partyWiseData.reduce((s, r) => s + r.crINR, 0))}
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-mono">
-                    {formatINR(partyWiseData.reduce((s, r) => s + r.netBookINR, 0))}
-                  </td>
-                  <td className="px-4 py-2.5 text-right font-mono text-indigo-700 dark:text-indigo-400">
-                    {formatINR(partyWiseData.reduce((s, r) => s + r.netValINR, 0))}
-                  </td>
-                </tr>
-              </tfoot>
-            )}
-          </table>
-        </div>
-      </div>
-
-      {/* Ageing Tables: Payables (Cr) & Advances (Dr) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 overflow-hidden">
-          <div className="p-4 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/70 dark:bg-slate-800/40 flex items-center justify-between">
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                Ageing: Payables (Cr)
-              </h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Aged from {db.settings.ageingBaseDateForPayables === 'boeDate' ? 'BOE Date' : 'CI Date'}
-              </p>
-            </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800 rounded-full">
-              &gt; 90 Days Alert
-            </span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200/80 dark:border-white/10 text-[10px]">
-                <tr>
-                  <th className="px-4 py-2.5">Supplier</th>
-                  <th className="px-2.5 py-2.5">Curr</th>
-                  <th className="px-2.5 py-2.5 text-right font-mono">&lt; 30d</th>
-                  <th className="px-2.5 py-2.5 text-right font-mono">31-60d</th>
-                  <th className="px-2.5 py-2.5 text-right font-mono">61-90d</th>
-                  <th className="px-2.5 py-2.5 text-right font-bold text-rose-700 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/20 font-mono">&gt; 90d</th>
-                  <th className="px-4 py-2.5 text-right font-bold font-mono">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-300">
-                {ageingPayables.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-3 py-6 text-center text-slate-400 dark:text-slate-500">
-                      No open payables.
-                    </td>
-                  </tr>
-                ) : (
-                  ageingPayables.map((r, i) => {
-                    const supp = supplierMap.get(r.supplierId);
-                    return (
-                      <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-4 py-2.5 font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">
-                          {supp?.supplierName}
-                        </td>
-                        <td className="px-2.5 py-2.5 font-bold text-slate-700 dark:text-slate-300">{r.currency}</td>
-                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b1)}</td>
-                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b2)}</td>
-                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b3)}</td>
-                        <td className={`px-2.5 py-2.5 text-right font-bold font-mono ${
-                          r.b4 > 0 ? 'bg-rose-100/70 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' : 'text-slate-400'
-                        }`}>
-                          {formatFC(r.b4)}
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-bold font-mono text-slate-900 dark:text-white">{formatFC(r.total)}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 overflow-hidden">
-          <div className="p-4 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/70 dark:bg-slate-800/40 flex items-center justify-between">
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                Ageing: Advances & Excess (Dr)
-              </h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Aged from unapplied remittance date (FIFO)</p>
-            </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 rounded-full">
-              Debit Position
-            </span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200/80 dark:border-white/10 text-[10px]">
-                <tr>
-                  <th className="px-4 py-2.5">Supplier</th>
-                  <th className="px-2.5 py-2.5">Curr</th>
-                  <th className="px-2.5 py-2.5 text-right font-mono">&lt; 30d</th>
-                  <th className="px-2.5 py-2.5 text-right font-mono">31-60d</th>
-                  <th className="px-2.5 py-2.5 text-right font-mono">61-90d</th>
-                  <th className="px-2.5 py-2.5 text-right font-bold text-rose-700 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/20 font-mono">&gt; 90d</th>
-                  <th className="px-4 py-2.5 text-right font-bold font-mono">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-300">
-                {ageingAdvances.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-3 py-6 text-center text-slate-400 dark:text-slate-500">
-                      No unapplied advances.
-                    </td>
-                  </tr>
-                ) : (
-                  ageingAdvances.map((r, i) => {
-                    const supp = supplierMap.get(r.supplierId);
-                    return (
-                      <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-4 py-2.5 font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">
-                          {supp?.supplierName}
-                        </td>
-                        <td className="px-2.5 py-2.5 font-bold text-slate-700 dark:text-slate-300">{r.currency}</td>
-                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b1)}</td>
-                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b2)}</td>
-                        <td className="px-2.5 py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">{formatFC(r.b3)}</td>
-                        <td className={`px-2.5 py-2.5 text-right font-bold font-mono ${
-                          r.b4 > 0 ? 'bg-rose-100/70 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' : 'text-slate-400'
-                        }`}>
-                          {formatFC(r.b4)}
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-bold font-mono text-slate-900 dark:text-white">{formatFC(r.total)}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
 
       {/* Drill-down Modal */}
       {drilldownModal && (
