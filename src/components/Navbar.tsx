@@ -14,6 +14,9 @@ import {
   Sun,
   Moon,
   FileSpreadsheet,
+  Save,
+  CheckCircle2,
+  RefreshCw,
 } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { UserManagementModal } from './UserManagementModal';
@@ -34,6 +37,8 @@ export const Navbar: React.FC = () => {
     serverStoragePath,
     connectDiskFile,
     resetToDemoSeed,
+    manualSaveDatabase,
+    lastSavedAt,
   } = useApp();
 
   const { currentUser, logout, permissions } = useAuth();
@@ -41,6 +46,21 @@ export const Navbar: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showExcelGrid, setShowExcelGrid] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveToast, setSaveToast] = useState<{ message: string; isError?: boolean } | null>(null);
+
+  const handleForceSave = async () => {
+    setIsSaving(true);
+    const res = await manualSaveDatabase();
+    setIsSaving(false);
+    if (res.success) {
+      setSaveToast({ message: `Data Saved Successfully! (${res.timestamp})` });
+      setTimeout(() => setSaveToast(null), 3500);
+    } else {
+      setSaveToast({ message: `Save Alert: ${res.error || 'Server error'}`, isError: true });
+      setTimeout(() => setSaveToast(null), 4500);
+    }
+  };
 
   return (
     <header className="no-print bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl text-slate-800 dark:text-slate-100 border-b border-slate-200/80 dark:border-white/10 sticky top-0 z-30 shadow-xs transition-colors duration-300">
@@ -96,6 +116,35 @@ export const Navbar: React.FC = () => {
 
         {/* Right Controls: Theme Toggle, User Auth, Disk Status & Admin Reset */}
         <div className="flex items-center space-x-2">
+          {/* Explicit One-Click Save Button (Persists All Modules To Disk) */}
+          <button
+            onClick={handleForceSave}
+            disabled={isSaving}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold cursor-pointer shadow-xs active:scale-95 ${
+              isSaving
+                ? 'bg-amber-500 text-white border-amber-600 animate-pulse'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-blue-500/40 shadow-blue-500/20'
+            }`}
+            title={`Explicitly save and commit all data to persistent storage. Last synchronized at: ${lastSavedAt || 'Now'}`}
+          >
+            {isSaving ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
+                <span className="text-[11px]">Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-3.5 h-3.5 text-white" />
+                <span className="text-[11px]">Save Data</span>
+                {lastSavedAt && (
+                  <span className="hidden lg:inline text-[9px] font-mono opacity-80 pl-1 border-l border-white/20">
+                    {lastSavedAt.slice(0, 5)}
+                  </span>
+                )}
+              </>
+            )}
+          </button>
+
           {/* Quick Excel Copy-Paste Hub Button */}
           <button
             onClick={() => setShowExcelGrid(true)}
@@ -223,6 +272,20 @@ export const Navbar: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Floating Save Notification Toast */}
+      {saveToast && (
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold text-white transition-all transform animate-bounce ${
+          saveToast.isError ? 'bg-rose-600 border border-rose-400' : 'bg-emerald-600 border border-emerald-400'
+        }`}>
+          {saveToast.isError ? (
+            <span>⚠️</span>
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+          )}
+          <span>{saveToast.message}</span>
+        </div>
+      )}
 
       {/* Modals */}
       <LoginModal isOpen={showLoginModal} isBlockingGate={false} onClose={() => setShowLoginModal(false)} />

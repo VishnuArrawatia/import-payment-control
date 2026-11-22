@@ -125,6 +125,8 @@ interface AppContextType {
   syncIGCRLotsFromBOEs: () => { createdCount: number };
   saveIGCRConsumption: (entry: IGCRConsumption) => { success: boolean; error?: string };
   deleteIGCRConsumption: (id: string) => void;
+  manualSaveDatabase: () => Promise<{ success: boolean; error?: string; timestamp: string }>;
+  lastSavedAt: string | null;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -143,6 +145,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [dbLoading, setDbLoading] = useState<boolean>(true);
   const [integrityError, setIntegrityError] = useState<string | null>(() => getLastIntegrityError());
   const [saveError, setSaveError] = useState<string | null>(() => getLastSaveError());
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(() => new Date().toLocaleTimeString());
   const [autoBackupsList, setAutoBackupsList] = useState<Array<{ key: string; timestamp: string; reason: string }>>([]);
 
   useEffect(() => {
@@ -223,6 +226,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const handleExportAllExcel = () => {
     exportAllDataToExcel(db);
+  };
+
+  const manualSaveDatabase = async (): Promise<{ success: boolean; error?: string; timestamp: string }> => {
+    const ts = new Date().toLocaleTimeString();
+    try {
+      await saveDatabase(db, true, 'User manual save trigger from header', actor);
+      setLastSavedAt(ts);
+      return { success: true, timestamp: ts };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to save to disk', timestamp: ts };
+    }
   };
 
   const handleResetToDemoSeed = async () => {
@@ -982,6 +996,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         syncIGCRLotsFromBOEs,
         saveIGCRConsumption,
         deleteIGCRConsumption,
+        manualSaveDatabase,
+        lastSavedAt,
       }}
     >
       {children}

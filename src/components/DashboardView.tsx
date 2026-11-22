@@ -26,6 +26,7 @@ import {
   ArrowUpRight,
   CheckCircle2,
   PieChart,
+  Scale,
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -61,9 +62,18 @@ export const DashboardView: React.FC = () => {
   // Compute Dashboard Metrics
   const metrics = useMemo(() => {
     let totalPayableCrFC = 0;
+    let payableUSD = 0;
+    let payableCNY = 0;
     let totalPayableCrINR = 0;
+
     let overduePayableFC = 0;
+    let overdueUSD = 0;
+    let overdueCNY = 0;
+
     let dueNext30DaysFC = 0;
+    let dueNext30DaysUSD = 0;
+    let dueNext30DaysCNY = 0;
+
     let openBillsCount = 0;
 
     // 1a. Payables from CI states
@@ -76,13 +86,19 @@ export const DashboardView: React.FC = () => {
         openBillsCount++;
         totalPayableCrFC += state.balanceFC;
         totalPayableCrINR += state.balanceINR;
+        if (state.ci.currency === 'USD') payableUSD += state.balanceFC;
+        else if (state.ci.currency === 'CNY') payableCNY += state.balanceFC;
 
         if (state.isOverdue) {
           overduePayableFC += state.balanceFC;
+          if (state.ci.currency === 'USD') overdueUSD += state.balanceFC;
+          else if (state.ci.currency === 'CNY') overdueCNY += state.balanceFC;
         } else if (state.dueDate) {
           const daysUntilDue = getDaysBetween(asOfDate, state.dueDate);
           if (daysUntilDue >= 0 && daysUntilDue <= 30) {
             dueNext30DaysFC += state.balanceFC;
+            if (state.ci.currency === 'USD') dueNext30DaysUSD += state.balanceFC;
+            else if (state.ci.currency === 'CNY') dueNext30DaysCNY += state.balanceFC;
           }
         }
       }
@@ -98,14 +114,21 @@ export const DashboardView: React.FC = () => {
         openBillsCount++;
         totalPayableCrFC += obState.balanceFC;
         totalPayableCrINR += obState.balanceINR;
+        if (obState.ob.currency === 'USD') payableUSD += obState.balanceFC;
+        else if (obState.ob.currency === 'CNY') payableCNY += obState.balanceFC;
+
         if (obState.isOverdue) {
           overduePayableFC += obState.balanceFC;
+          if (obState.ob.currency === 'USD') overdueUSD += obState.balanceFC;
+          else if (obState.ob.currency === 'CNY') overdueCNY += obState.balanceFC;
         }
       }
     }
 
     // 2. Advances / Excess (Dr) from ALL unapplied chunks
     let totalAdvanceDrFC = 0;
+    let advanceUSD = 0;
+    let advanceCNY = 0;
     let totalAdvanceDrINR = 0;
 
     for (const chunk of engineResult.unappliedPayments) {
@@ -117,6 +140,8 @@ export const DashboardView: React.FC = () => {
 
       totalAdvanceDrFC += chunk.remainingFC;
       totalAdvanceDrINR += chunk.remainingFC * chunk.exactRate;
+      if (chunk.currency === 'USD') advanceUSD += chunk.remainingFC;
+      else if (chunk.currency === 'CNY') advanceCNY += chunk.remainingFC;
     }
 
     // 3. Advance still to be paid on open PIs
@@ -229,12 +254,23 @@ export const DashboardView: React.FC = () => {
 
     return {
       totalPayableCrFC,
+      payableUSD,
+      payableCNY,
       totalPayableCrINR,
       openBillsCount,
       totalAdvanceDrFC,
+      advanceUSD,
+      advanceCNY,
       totalAdvanceDrINR,
       overduePayableFC,
+      overdueUSD,
+      overdueCNY,
       dueNext30DaysFC,
+      dueNext30DaysUSD,
+      dueNext30DaysCNY,
+      netClosingUSD: payableUSD - advanceUSD,
+      netClosingCNY: payableCNY - advanceCNY,
+      netClosingINR: totalPayableCrINR - totalAdvanceDrINR,
       advanceStillToBePaidFC,
       openLcFC,
       openLcINR,
@@ -617,11 +653,21 @@ export const DashboardView: React.FC = () => {
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-black font-mono tracking-tight text-white drop-shadow-xs">
-              {formatFC(metrics.totalPayableCrFC)} <span className="text-xs font-sans font-semibold text-blue-200">FC</span>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-black font-mono tracking-tight text-white drop-shadow-xs">
+                ${formatFC(metrics.payableUSD)} <span className="text-xs font-sans font-semibold text-blue-200">USD</span>
+              </span>
+              {metrics.payableCNY > 0 && (
+                <span className="text-xl font-black font-mono tracking-tight text-amber-200 drop-shadow-xs border-l border-white/20 pl-2">
+                  ¥{formatFC(metrics.payableCNY)} <span className="text-xs font-sans font-semibold text-amber-100">CNY</span>
+                </span>
+              )}
             </div>
-            <div className="text-xs font-bold text-blue-100 font-mono mt-1">
-              {formatINR(metrics.totalPayableCrINR, 0, true)}
+            <div className="text-xs font-bold text-blue-100 font-mono mt-1 flex items-center justify-between">
+              <span>Book: {formatINR(metrics.totalPayableCrINR, 0, true)}</span>
+              {metrics.payableCNY > 0 && (
+                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white font-mono">USD + CNY</span>
+              )}
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between text-[11px] text-blue-100 border-t border-white/15 pt-2.5">
@@ -641,11 +687,21 @@ export const DashboardView: React.FC = () => {
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-black font-mono tracking-tight text-white drop-shadow-xs">
-              {formatFC(metrics.totalAdvanceDrFC)} <span className="text-xs font-sans font-semibold text-purple-200">FC</span>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-black font-mono tracking-tight text-white drop-shadow-xs">
+                ${formatFC(metrics.advanceUSD)} <span className="text-xs font-sans font-semibold text-purple-200">USD</span>
+              </span>
+              {metrics.advanceCNY > 0 && (
+                <span className="text-xl font-black font-mono tracking-tight text-emerald-200 drop-shadow-xs border-l border-white/20 pl-2">
+                  ¥{formatFC(metrics.advanceCNY)} <span className="text-xs font-sans font-semibold text-emerald-100">CNY</span>
+                </span>
+              )}
             </div>
-            <div className="text-xs font-bold text-purple-100 font-mono mt-1">
-              {formatINR(metrics.totalAdvanceDrINR, 0, true)}
+            <div className="text-xs font-bold text-purple-100 font-mono mt-1 flex items-center justify-between">
+              <span>Book: {formatINR(metrics.totalAdvanceDrINR, 0, true)}</span>
+              {metrics.advanceCNY > 0 && (
+                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white font-mono">USD + CNY</span>
+              )}
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between text-[11px] text-purple-100 border-t border-white/15 pt-2.5">
@@ -665,11 +721,18 @@ export const DashboardView: React.FC = () => {
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-black font-mono tracking-tight text-white drop-shadow-xs">
-              {formatFC(metrics.overduePayableFC)} <span className="text-xs font-sans font-semibold text-rose-200">FC</span>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-black font-mono tracking-tight text-white drop-shadow-xs">
+                ${formatFC(metrics.overdueUSD)} <span className="text-xs font-sans font-semibold text-rose-200">USD</span>
+              </span>
+              {metrics.overdueCNY > 0 && (
+                <span className="text-xl font-black font-mono tracking-tight text-amber-200 drop-shadow-xs border-l border-white/20 pl-2">
+                  ¥{formatFC(metrics.overdueCNY)} <span className="text-xs font-sans font-semibold text-amber-100">CNY</span>
+                </span>
+              )}
             </div>
             <div className="text-xs font-bold text-rose-100 font-mono mt-1">
-              Due in &le;30d: {formatFC(metrics.dueNext30DaysFC)} FC
+              Due &le;30d: ${formatFC(metrics.dueNext30DaysUSD)} USD {metrics.dueNext30DaysCNY > 0 ? `| ¥${formatFC(metrics.dueNext30DaysCNY)} CNY` : ''}
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between text-[11px] text-rose-100 border-t border-white/15 pt-2.5">
@@ -700,6 +763,54 @@ export const DashboardView: React.FC = () => {
             <span className="truncate">{metrics.hasMonthEndRate ? `As of: ${formatDate(metrics.latestMonthEnd)}` : 'Auto-derived FX'}</span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
               Live Engine
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Net Closing Position Summary Strip (USD & CNY Dual Currency Breakup) */}
+      <div className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-xl p-4 rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+            <Scale className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <span>Net Closing Position (As-on Date)</span>
+              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                metrics.netClosingINR >= 0 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200' : 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200'
+              }`}>
+                {metrics.netClosingINR >= 0 ? '+ Net Payable to Suppliers' : '− Net Advance with Suppliers'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Net balance across all commercial invoices, open PIs, and advance remittances
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 flex-wrap">
+          {/* USD Net */}
+          <div className="px-3.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-white/10">
+            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Net USD</span>
+            <span className={`text-base font-black font-mono tracking-tight ${metrics.netClosingUSD >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-purple-600 dark:text-purple-400'}`}>
+              {metrics.netClosingUSD >= 0 ? '+' : '−'}${formatFC(Math.abs(metrics.netClosingUSD))} USD
+            </span>
+          </div>
+
+          {/* CNY Net */}
+          <div className="px-3.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-white/10">
+            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Net CNY</span>
+            <span className={`text-base font-black font-mono tracking-tight ${metrics.netClosingCNY >= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+              {metrics.netClosingCNY >= 0 ? '+' : '−'}¥{formatFC(Math.abs(metrics.netClosingCNY))} CNY
+            </span>
+          </div>
+
+          {/* Book INR Net */}
+          <div className="px-3.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-white/10">
+            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Net Book INR</span>
+            <span className={`text-base font-black font-mono tracking-tight ${metrics.netClosingINR >= 0 ? 'text-slate-900 dark:text-white' : 'text-purple-700 dark:text-purple-300'}`}>
+              {metrics.netClosingINR >= 0 ? '+' : '−'}{formatINR(Math.abs(metrics.netClosingINR), 0, true)}
             </span>
           </div>
         </div>

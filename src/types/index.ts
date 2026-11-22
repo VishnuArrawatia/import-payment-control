@@ -204,6 +204,8 @@ export interface Payment {
   linkedCiId?: string;
   paymentMode: PaymentMode;
   bankReferenceNo: string; // Bank's own transaction ref
+  utrNo?: string; // RTGS / NEFT UTR number
+  swiftNo?: string; // International SWIFT / MT103 outward transmission ref
   utrSwiftRef?: string;
   purposeCode?: string; // e.g. S0101 advance, S0102 against bill
   formA1RequestNo?: string;

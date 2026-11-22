@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Payment, PaymentMode } from '../types';
 import { formatFC, formatINR, formatDate, formatRate } from '../utils/formatters';
 import { exportToExcel } from '../utils/excel';
-import { Plus, Download, Search, AlertCircle, Copy, CreditCard, ShieldAlert, Clock, FileSpreadsheet } from 'lucide-react';
+import { Plus, Download, Search, AlertCircle, Copy, CreditCard, ShieldAlert, Clock, FileSpreadsheet, Save, CheckCircle2 } from 'lucide-react';
 import { ExcelBatchGridModal } from './ExcelBatchGridModal';
 
 export const PaymentScreen: React.FC = () => {
@@ -18,6 +18,7 @@ export const PaymentScreen: React.FC = () => {
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [rateWarning, setRateWarning] = useState<string | null>(null);
+  const [saveNotification, setSaveNotification] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<Partial<Payment>>({
@@ -37,6 +38,8 @@ export const PaymentScreen: React.FC = () => {
     linkedCiId: '',
     paymentMode: 'Advance',
     bankReferenceNo: '',
+    utrNo: '',
+    swiftNo: '',
     utrSwiftRef: '',
     purposeCode: 'S0101',
     formA1RequestNo: '',
@@ -149,6 +152,8 @@ export const PaymentScreen: React.FC = () => {
       linkedCiId: '',
       paymentMode: 'Advance',
       bankReferenceNo: '',
+      utrNo: '',
+      swiftNo: '',
       utrSwiftRef: '',
       purposeCode: 'S0101',
       formA1RequestNo: '',
@@ -217,7 +222,9 @@ export const PaymentScreen: React.FC = () => {
       linkedCiId: formData.paymentAgainst === 'CI' ? formData.linkedCiId : undefined,
       paymentMode: (formData.paymentMode as PaymentMode) || 'Advance',
       bankReferenceNo: formData.bankReferenceNo ? formData.bankReferenceNo.trim() : `REF-${Date.now().toString().slice(-6)}`,
-      utrSwiftRef: formData.utrSwiftRef || undefined,
+      utrNo: formData.utrNo ? formData.utrNo.trim() : undefined,
+      swiftNo: formData.swiftNo ? formData.swiftNo.trim() : undefined,
+      utrSwiftRef: formData.swiftNo ? `SWIFT:${formData.swiftNo.trim()}` : (formData.utrNo || formData.utrSwiftRef || undefined),
       purposeCode: formData.purposeCode || (formData.paymentAgainst === 'PI' ? 'S0101' : 'S0102'),
       formA1RequestNo: formData.formA1RequestNo || undefined,
       remarks: formData.remarks || undefined,
@@ -236,6 +243,8 @@ export const PaymentScreen: React.FC = () => {
       return;
     }
 
+    setSaveNotification(`Payment ${payload.bankReferenceNo} (${payload.currency} ${payload.amountFC.toLocaleString()}) saved successfully to database!`);
+    setTimeout(() => setSaveNotification(null), 4500);
     setShowModal(false);
   };
 
@@ -254,6 +263,8 @@ export const PaymentScreen: React.FC = () => {
       const supp = db.suppliers.find(s => s.id === p.supplierId);
       return (
         p.bankReferenceNo.toLowerCase().includes(q) ||
+        (p.swiftNo && p.swiftNo.toLowerCase().includes(q)) ||
+        (p.utrNo && p.utrNo.toLowerCase().includes(q)) ||
         (p.utrSwiftRef && p.utrSwiftRef.toLowerCase().includes(q)) ||
         supp?.supplierName.toLowerCase().includes(q)
       );
@@ -293,6 +304,8 @@ export const PaymentScreen: React.FC = () => {
         'Linked BOE(s)': linkedBOEs.join(', ') || (ci?.boeNo || '-'),
         Mode: p.paymentMode,
         'Bank Ref No': p.bankReferenceNo,
+        'SWIFT No': p.swiftNo || '',
+        'UTR No': p.utrNo || '',
         'UTR / SWIFT': p.utrSwiftRef || '',
         'Purpose Code': p.purposeCode || '',
         'Form A1': p.formA1RequestNo || '',
@@ -304,6 +317,19 @@ export const PaymentScreen: React.FC = () => {
 
   return (
     <div className="p-6 space-y-4">
+      {/* Top Save Confirmation Banner */}
+      {saveNotification && (
+        <div className="flex items-center justify-between p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-900 shadow-sm animate-fade-in">
+          <div className="flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="text-xs font-bold">{saveNotification}</span>
+          </div>
+          <button onClick={() => setSaveNotification(null)} className="text-emerald-700 hover:text-emerald-950 text-xs font-bold">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Action Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div>
@@ -541,7 +567,21 @@ export const PaymentScreen: React.FC = () => {
                       </td>
                       <td className="px-3 py-2.5">
                         <div className="font-bold text-slate-800">{p.bankReferenceNo}</div>
-                        {p.utrSwiftRef && <div className="text-[10px] text-slate-400">{p.utrSwiftRef}</div>}
+                        <div className="flex flex-col gap-0.5 mt-0.5">
+                          {p.swiftNo && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-blue-800 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded font-mono font-bold w-fit">
+                              SWIFT: {p.swiftNo}
+                            </span>
+                          )}
+                          {p.utrNo && (
+                            <span className="text-[10px] text-slate-500 font-mono">
+                              UTR: {p.utrNo}
+                            </span>
+                          )}
+                          {!p.swiftNo && !p.utrNo && p.utrSwiftRef && (
+                            <span className="text-[10px] text-slate-400 font-mono">{p.utrSwiftRef}</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-2.5">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
@@ -989,29 +1029,44 @@ export const PaymentScreen: React.FC = () => {
               </div>
 
               {/* Bank Submission & Banking References */}
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                 {/* Bank Ref No */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Bank Reference No *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Bank Ref No *</label>
                   <input
                     type="text"
                     value={formData.bankReferenceNo}
                     onChange={e => setFormData({ ...formData, bankReferenceNo: e.target.value })}
                     placeholder="e.g. HDFC-ADV-101"
-                    className="w-full text-xs p-2 rounded border border-slate-300 font-semibold"
+                    className="w-full text-xs p-2 rounded border border-slate-300 font-semibold bg-white"
                     required
                   />
                 </div>
 
-                {/* UTR / SWIFT */}
+                {/* Bank UTR No */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">UTR / SWIFT Ref</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Bank UTR No</label>
                   <input
                     type="text"
-                    value={formData.utrSwiftRef || ''}
-                    onChange={e => setFormData({ ...formData, utrSwiftRef: e.target.value })}
+                    value={formData.utrNo || ''}
+                    onChange={e => setFormData({ ...formData, utrNo: e.target.value })}
                     placeholder="e.g. HDFCN26105001234"
-                    className="w-full text-xs p-2 rounded border border-slate-300 uppercase"
+                    className="w-full text-xs p-2 rounded border border-slate-300 uppercase bg-white font-mono"
+                  />
+                </div>
+
+                {/* SWIFT No */}
+                <div>
+                  <label className="block text-xs font-bold text-blue-800 mb-1 flex items-center gap-1">
+                    <span>SWIFT No. / MT103</span>
+                    <span className="text-[9px] bg-blue-100 text-blue-700 px-1 rounded font-normal">Foreign Wire</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.swiftNo || ''}
+                    onChange={e => setFormData({ ...formData, swiftNo: e.target.value })}
+                    placeholder="e.g. SWIFT-2026-9041"
+                    className="w-full text-xs p-2 rounded border border-blue-300 focus:border-blue-500 uppercase bg-blue-50/40 font-mono font-bold text-blue-900"
                   />
                 </div>
 
@@ -1023,19 +1078,19 @@ export const PaymentScreen: React.FC = () => {
                     value={formData.purposeCode || 'S0101'}
                     onChange={e => setFormData({ ...formData, purposeCode: e.target.value })}
                     placeholder="e.g. S0101 / S0102"
-                    className="w-full text-xs p-2 rounded border border-slate-300 uppercase"
+                    className="w-full text-xs p-2 rounded border border-slate-300 uppercase bg-white"
                   />
                 </div>
 
                 {/* Form A1 */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Form A1 / Request No</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Form A1 / Req No</label>
                   <input
                     type="text"
                     value={formData.formA1RequestNo || ''}
                     onChange={e => setFormData({ ...formData, formA1RequestNo: e.target.value })}
                     placeholder="e.g. A1-2026-0042"
-                    className="w-full text-xs p-2 rounded border border-slate-300"
+                    className="w-full text-xs p-2 rounded border border-slate-300 bg-white"
                   />
                 </div>
               </div>
@@ -1102,20 +1157,27 @@ export const PaymentScreen: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-200 flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm"
-                >
-                  {editingPayment ? 'Update Payment' : 'Save Payment'}
-                </button>
+              <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center space-x-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Real-time disk persistence: Changes save instantly to database</span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-4 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex items-center space-x-1.5 px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm cursor-pointer active:scale-95 transition-all"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{editingPayment ? '💾 Save & Update Payment' : '💾 Save & Record Payment'}</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>

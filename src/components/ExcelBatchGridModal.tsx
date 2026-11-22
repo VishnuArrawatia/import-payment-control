@@ -116,7 +116,8 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
           { key: 'amountFC', label: 'Amount (FC)', required: true, type: 'number', placeholder: '5000.00' },
           { key: 'actualExchangeRate', label: 'Bank Rate', required: true, type: 'number', placeholder: '88.10' },
           { key: 'bankRefNo', label: 'Bank Ref No', placeholder: 'FT260401' },
-          { key: 'utrSwiftRef', label: 'UTR / SWIFT Ref', placeholder: 'HDFCR520260401...' },
+          { key: 'swiftNo', label: 'SWIFT No', placeholder: 'SWIFT-2026-01' },
+          { key: 'utrSwiftRef', label: 'UTR Ref', placeholder: 'HDFCR520260401...' },
           { key: 'paymentAgainst', label: 'Against (PI/CI)', placeholder: 'PI' },
           { key: 'linkedDocNo', label: 'Linked PI/CI No', placeholder: 'PI-2026-01' },
         ];
@@ -391,7 +392,9 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
             linkedCiId,
             paymentMode: 'Advance',
             bankReferenceNo: row.bankRefNo?.trim() || `REF-${Date.now()}`,
-            utrSwiftRef: row.utrSwiftRef?.trim() || undefined,
+            swiftNo: row.swiftNo?.trim() || undefined,
+            utrNo: row.utrSwiftRef?.trim() || undefined,
+            utrSwiftRef: row.swiftNo?.trim() ? `SWIFT:${row.swiftNo.trim()}` : (row.utrSwiftRef?.trim() || undefined),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
