@@ -202,11 +202,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, isBlockingGate =
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 md:p-8 overflow-y-auto ${
-        isBlockingGate
+      className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 md:p-8 overflow-y-auto ${isBlockingGate
           ? 'bg-gradient-to-br from-[#070b14] via-[#0b1329] to-[#050811]'
           : 'bg-black/75 backdrop-blur-md'
-      }`}
+        }`}
     >
       {/* Background ambient lighting effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -217,7 +216,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, isBlockingGate =
 
       {/* Main Split-Screen Container */}
       <div className="relative w-full max-w-5xl bg-white dark:bg-[#0d1527] rounded-3xl sm:rounded-[32px] shadow-2xl border border-slate-200/80 dark:border-white/10 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px] transition-all">
-        
+
         {/* Close Button (for Switch Account modal mode) */}
         {!isBlockingGate && (
           <button
@@ -321,18 +320,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, isBlockingGate =
                         key={u.id}
                         type="button"
                         onClick={() => handleSelectUser(u.username)}
-                        className={`p-2 rounded-xl text-left transition-all border flex items-center gap-2 cursor-pointer ${
-                          isSelected
+                        className={`p-2 rounded-xl text-left transition-all border flex items-center gap-2 cursor-pointer ${isSelected
                             ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-600/30'
                             : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-white/5 hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-slate-700/60'
-                        }`}
+                          }`}
                       >
                         <div
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                            isSelected
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isSelected
                               ? 'bg-white/20 text-white'
                               : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
-                          }`}
+                            }`}
                         >
                           {meta.icon}
                         </div>
@@ -341,9 +338,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, isBlockingGate =
                             {meta.title}
                           </div>
                           <div
-                            className={`text-[9px] font-mono tracking-tighter truncate ${
-                              isSelected ? 'text-white/80' : 'text-slate-400'
-                            }`}
+                            className={`text-[9px] font-mono tracking-tighter truncate ${isSelected ? 'text-white/80' : 'text-slate-400'
+                              }`}
                           >
                             @{u.username} • {meta.badge}
                           </div>
@@ -413,7 +409,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, isBlockingGate =
 
         {/* RIGHT PANEL: Modern Import Showcase (7 Cols on LG - Inspiring Visuals: Ship, Air, Trucks, Customs) */}
         <div className="lg:col-span-7 bg-gradient-to-br from-[#0a1226] via-[#0e1c3d] to-[#081024] p-6 sm:p-10 flex flex-col justify-between relative overflow-hidden select-none">
-          
+
           {/* Background Ambient Glows & Tech Grid */}
           <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:24px_24px]"></div>
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 ${currSlide.bgGlow} rounded-full blur-[100px] transition-all duration-1000`}></div>
@@ -448,15 +444,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, isBlockingGate =
 
           {/* Center Visual Art: Concentric Radar with Floating Orbital Badges (Inspired by Image 2) */}
           <div className="relative z-10 my-8 sm:my-12 flex items-center justify-center">
-            
+
             {/* Concentric Radar Rings */}
             <div className="relative w-72 h-72 sm:w-88 sm:h-88 flex items-center justify-center">
               {/* Outer Ring */}
               <div className="absolute inset-0 rounded-full border border-white/10 animate-[spin_60s_linear_infinite]"></div>
-              
+
               {/* Middle Ring */}
               <div className="absolute inset-8 rounded-full border border-dashed border-white/15 animate-[spin_40s_linear_infinite_reverse]"></div>
-              
+
               {/* Inner Glowing Ring */}
               <div className="absolute inset-16 rounded-full border border-indigo-400/30 bg-gradient-to-tr from-indigo-500/10 to-sky-500/10 backdrop-blur-2xs flex items-center justify-center"></div>
 
@@ -505,11 +501,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, isBlockingGate =
                   key={idx}
                   type="button"
                   onClick={() => setActiveSlide(idx)}
-                  className={`transition-all duration-300 rounded-full cursor-pointer ${
-                    activeSlide === idx
+                  className={`transition-all duration-300 rounded-full cursor-pointer ${activeSlide === idx
                       ? 'w-7 h-2 bg-gradient-to-r from-sky-400 to-indigo-400'
                       : 'w-2 h-2 bg-white/30 hover:bg-white/50'
-                  }`}
+                    }`}
                   title={`Go to slide ${idx + 1}`}
                 />
               ))}
