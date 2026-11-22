@@ -29,6 +29,7 @@ import {
     ChevronRight,
     Zap,
     Users,
+    TrendingUp,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -40,6 +41,7 @@ export type NavTab =
     | 'key_position'
     | 'supplier_summary'
     | 'party_ledger'
+    | 'fx_gain_loss'
     | 'items_master'
     | 'purchase_requisitions'
     | 'pi'
@@ -150,6 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
                 title: 'TREASURY & SETTLEMENT',
                 items: [
                     { id: 'party_ledger', label: 'Party Ledger (Statement)', icon: BookOpen, financeOnly: true },
+                    { id: 'fx_gain_loss', label: 'FX Gain / Loss Working', icon: TrendingUp, financeOnly: true },
                     { id: 'payments', label: 'Import Payments', icon: CreditCard, financeOnly: true },
                     {
                         id: 'debit_notes',

@@ -8,6 +8,7 @@ import { DashboardView } from './components/DashboardView';
 import { KeyPositionScreen } from './components/KeyPositionScreen';
 import { SupplierSummaryScreen } from './components/SupplierSummaryScreen';
 import { PartyLedgerScreen } from './components/PartyLedgerScreen';
+import { FxGainLossScreen } from './components/FxGainLossScreen';
 import { ItemsMasterScreen } from './components/ItemsMasterScreen';
 import { RequisitionsScreen } from './components/RequisitionsScreen';
 import { PIScreen } from './components/PIScreen';
@@ -130,6 +131,9 @@ const MainLayout: React.FC = () => {
                 <SupplierSummaryScreen onNavigateToLedger={() => setCurrentTab('party_ledger')} />
               )}
               {currentTab === 'party_ledger' && <PartyLedgerScreen />}
+              {currentTab === 'fx_gain_loss' && (
+                <FxGainLossScreen onNavigateToLedger={() => setCurrentTab('party_ledger')} />
+              )}
               {currentTab === 'items_master' && <ItemsMasterScreen />}
               {currentTab === 'purchase_requisitions' && <RequisitionsScreen />}
               {currentTab === 'pi' && <PIScreen />}

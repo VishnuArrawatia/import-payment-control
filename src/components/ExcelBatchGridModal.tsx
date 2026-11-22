@@ -579,8 +579,8 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
                   setSaveSuccessMsg(null);
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${entity === tab.id
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
-                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
               >
                 {tab.label}
@@ -784,12 +784,12 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
                                     placeholder={col.placeholder}
                                     onChange={e => handleCellChange(rIdx, col.key, e.target.value)}
                                     className={`w-full bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 border transition-all ${col.required && !val.trim()
-                                        ? 'border-rose-300 dark:border-rose-700 bg-rose-50/20'
-                                        : isVendorCol && vendorMatch?.matched
-                                          ? 'border-emerald-300 dark:border-emerald-800 text-slate-900 dark:text-white'
-                                          : isVendorCol && val.trim() && !vendorMatch?.matched
-                                            ? 'border-rose-300 dark:border-rose-700 bg-rose-50/10'
-                                            : 'border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white'
+                                      ? 'border-rose-300 dark:border-rose-700 bg-rose-50/20'
+                                      : isVendorCol && vendorMatch?.matched
+                                        ? 'border-emerald-300 dark:border-emerald-800 text-slate-900 dark:text-white'
+                                        : isVendorCol && val.trim() && !vendorMatch?.matched
+                                          ? 'border-rose-300 dark:border-rose-700 bg-rose-50/10'
+                                          : 'border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white'
                                       }`}
                                   />
                                   {isVendorCol && vendorMatch?.matched && (
@@ -900,8 +900,8 @@ export const ExcelBatchGridModal: React.FC<ExcelBatchGridModalProps> = ({
               onClick={handleSaveAndApply}
               disabled={gridRows.length === 0 || validationSummary.errorCount > 0}
               className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md cursor-pointer ${gridRows.length > 0 && validationSummary.errorCount === 0
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/30'
-                  : 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/30'
+                : 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
                 }`}
             >
               <Save className="w-4 h-4" />
