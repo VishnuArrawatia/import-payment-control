@@ -17,10 +17,12 @@ import {
   Save,
   CheckCircle2,
   RefreshCw,
+  BookOpen,
 } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { UserManagementModal } from './UserManagementModal';
 import { ExcelBatchGridModal } from './ExcelBatchGridModal';
+import { UserGuideModal } from './UserGuideModal';
 import { BrandLogo } from './BrandLogo';
 import { UserAvatar } from './UserAvatar';
 
@@ -46,6 +48,7 @@ export const Navbar: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showExcelGrid, setShowExcelGrid] = useState(false);
+  const [showUserGuide, setShowUserGuide] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveToast, setSaveToast] = useState<{ message: string; isError?: boolean } | null>(null);
 
@@ -153,6 +156,16 @@ export const Navbar: React.FC = () => {
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span className="text-[11px]">Excel Paste & Edit</span>
+          </button>
+
+          {/* Interactive User Guide Button */}
+          <button
+            onClick={() => setShowUserGuide(true)}
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold cursor-pointer shadow-2xs bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border-indigo-300 dark:border-indigo-800 text-indigo-800 dark:text-indigo-300"
+            title="Open Complete Step-by-Step User Guide with Instructions"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <span className="text-[11px]">User Guide</span>
           </button>
 
           {/* Theme Mode Toggle Button (Image 1 & 2 inspired) */}
@@ -277,6 +290,7 @@ export const Navbar: React.FC = () => {
       <LoginModal isOpen={showLoginModal} isBlockingGate={false} onClose={() => setShowLoginModal(false)} />
       <UserManagementModal isOpen={showUserModal} onClose={() => setShowUserModal(false)} />
       <ExcelBatchGridModal isOpen={showExcelGrid} onClose={() => setShowExcelGrid(false)} />
+      <UserGuideModal isOpen={showUserGuide} onClose={() => setShowUserGuide(false)} />
     </header>
   );
 };
