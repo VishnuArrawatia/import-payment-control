@@ -1,6 +1,6 @@
 {
   "version": "2.3.0",
-  "lastUpdated": "2026-11-22T11:19:05.191Z",
+  "lastUpdated": "2026-11-22T11:26:58.610Z",
   "companies": [
     {
       "id": "comp-sakar",
@@ -148,7 +148,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.187Z"
+      "updatedAt": "2026-11-22T11:26:58.602Z"
     },
     {
       "id": "supp-svn-v00737",
@@ -159,7 +159,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.189Z"
+      "updatedAt": "2026-11-22T11:26:58.607Z"
     },
     {
       "id": "supp-svn-v00738",
@@ -170,7 +170,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.189Z"
+      "updatedAt": "2026-11-22T11:26:58.607Z"
     },
     {
       "id": "supp-svn-v01027",
@@ -181,7 +181,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.189Z"
+      "updatedAt": "2026-11-22T11:26:58.607Z"
     },
     {
       "id": "supp-svn-v00677",
@@ -192,7 +192,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.190Z"
+      "updatedAt": "2026-11-22T11:26:58.608Z"
     },
     {
       "id": "supp-svn-v00850",
@@ -203,7 +203,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.190Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "supp-svn-v01060",
@@ -214,7 +214,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.190Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "supp-svn-v00905",
@@ -225,7 +225,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "supp-svn-v00928",
@@ -236,7 +236,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "supp-svn-v00721",
@@ -247,7 +247,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "supp-svn-v01118",
@@ -258,7 +258,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "supp-svn-v01017",
@@ -269,7 +269,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "supp-svn-v00996",
@@ -280,7 +280,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "supp-svn-v01110",
@@ -291,7 +291,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "supp-svn-v00992",
@@ -302,7 +302,7 @@
       "defaultCurrency": "USD",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     }
   ],
   "currencies": [
@@ -452,255 +452,255 @@
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00044",
       "currency": "USD",
-      "referenceType": "CI",
+      "referenceType": "On account",
       "referenceNo": "OB-2026-SVN-V00044",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Cr",
+      "balanceType": "Dr",
       "amountFC": 5284.73,
       "amountINR": 474805.94,
       "rate": 89.8449,
-      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00044 - BRIGHT UNIVERSE HK CO LTD)",
+      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00044 - BRIGHT UNIVERSE HK CO LTD)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.189Z"
+      "updatedAt": "2026-11-22T11:26:58.607Z"
     },
     {
       "id": "ob-svn-v00737",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00737",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V00737",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 4996,
       "amountINR": 470873,
       "rate": 94.25,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00737 - FERRICS TECHNOLOGY CO.,LIMITED)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00737 - FERRICS TECHNOLOGY CO.,LIMITED)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.189Z"
+      "updatedAt": "2026-11-22T11:26:58.607Z"
     },
     {
       "id": "ob-svn-v00738",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00738",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V00738",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 233.03,
       "amountINR": 21297,
       "rate": 91.3917,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00738 - Foshan Sinoway Machinery Equipment Sales Company)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00738 - Foshan Sinoway Machinery Equipment Sales Company)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.189Z"
+      "updatedAt": "2026-11-22T11:26:58.607Z"
     },
     {
       "id": "ob-svn-v01027",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v01027",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V01027",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 11694.63,
       "amountINR": 1101978.38,
       "rate": 94.2294,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V01027 - Fujian GW Technology Co.,Ltd)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V01027 - Fujian GW Technology Co.,Ltd)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.189Z"
+      "updatedAt": "2026-11-22T11:26:58.607Z"
     },
     {
       "id": "ob-svn-v00677",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00677",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V00677",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 25329,
       "amountINR": 2151698.57,
       "rate": 84.95,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00677 - HONG KONG EFAN ELECTRONICS LIMITED)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00677 - HONG KONG EFAN ELECTRONICS LIMITED)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.190Z"
+      "updatedAt": "2026-11-22T11:26:58.608Z"
     },
     {
       "id": "ob-svn-v00850",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00850",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V00850",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 5915.04,
       "amountINR": 547140.92,
       "rate": 92.5,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00850 - LITEONTECH LIMITED)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00850 - LITEONTECH LIMITED)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.190Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "ob-svn-v01060",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v01060",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V01060",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 3486,
       "amountINR": 328556,
       "rate": 94.2501,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V01060 - Power Chip Technologies (Suzhou) Co.,LTD)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V01060 - Power Chip Technologies (Suzhou) Co.,LTD)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "ob-svn-v00905",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00905",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V00905",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 116137,
       "amountINR": 10945945,
       "rate": 94.2503,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00905 - San Yi New Material CO.,LTD)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00905 - San Yi New Material CO.,LTD)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "ob-svn-v00928",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00928",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V00928",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 0,
       "amountINR": 378108.15,
       "rate": 0,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00928 - Shenzhen CYT Semiconductor Technology Co., Ltd.)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00928 - Shenzhen CYT Semiconductor Technology Co., Ltd.)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.609Z"
     },
     {
       "id": "ob-svn-v00721",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00721",
       "currency": "USD",
-      "referenceType": "CI",
+      "referenceType": "On account",
       "referenceNo": "OB-2026-SVN-V00721",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Cr",
+      "balanceType": "Dr",
       "amountFC": 28900.36,
       "amountINR": 2467183.29,
       "rate": 85.3686,
-      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00721 - Shenzhen Lanjin photoelectric Co.,Ltd)",
+      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00721 - Shenzhen Lanjin photoelectric Co.,Ltd)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "ob-svn-v01118",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v01118",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V01118",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 40125.25,
       "amountINR": 3763748,
       "rate": 93.8,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V01118 - TECHNOLOGY PP INDUSTRIES (NORTHERN) SDN BHD)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V01118 - TECHNOLOGY PP INDUSTRIES (NORTHERN) SDN BHD)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "ob-svn-v01017",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v01017",
       "currency": "USD",
-      "referenceType": "On account",
+      "referenceType": "CI",
       "referenceNo": "OB-2026-SVN-V01017",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Dr",
+      "balanceType": "Cr",
       "amountFC": 490.13,
       "amountINR": 42761.64,
       "rate": 87.2455,
-      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V01017 - YIWU YULIANG ECOMMERCE FIRM)",
+      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V01017 - YIWU YULIANG ECOMMERCE FIRM)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "ob-svn-v00996",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00996",
       "currency": "USD",
-      "referenceType": "CI",
+      "referenceType": "On account",
       "referenceNo": "OB-2026-SVN-V00996",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Cr",
+      "balanceType": "Dr",
       "amountFC": 0,
       "amountINR": 1843382.3,
       "rate": 0,
-      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00996 - ZHONGSHAN BU LUO MU LIGHTING COMPANY)",
+      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00996 - ZHONGSHAN BU LUO MU LIGHTING COMPANY)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "ob-svn-v01110",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v01110",
       "currency": "USD",
-      "referenceType": "CI",
+      "referenceType": "On account",
       "referenceNo": "OB-2026-SVN-V01110",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Cr",
+      "balanceType": "Dr",
       "amountFC": 0,
       "amountINR": 602723.44,
       "rate": 0,
-      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V01110 - Zhongshan Dashuo Import And Export Co., Ltd.)",
+      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V01110 - Zhongshan Dashuo Import And Export Co., Ltd.)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     },
     {
       "id": "ob-svn-v00992",
       "companyId": "comp-svn",
       "supplierId": "supp-svn-v00992",
       "currency": "USD",
-      "referenceType": "CI",
+      "referenceType": "On account",
       "referenceNo": "OB-2026-SVN-V00992",
       "referenceDate": "2026-04-01",
       "originalDocumentDate": "2026-04-01",
-      "balanceType": "Cr",
+      "balanceType": "Dr",
       "amountFC": 221.27,
       "amountINR": 20014.4,
       "rate": 90.4524,
-      "remarks": "Opening Payable (Cr) as on 01-04-2026 for SVN Opto Electronics (V00992 - Zhongshan Liandi photoelectric Co.,Ltd)",
+      "remarks": "Opening Advance (Dr) as on 01-04-2026 for SVN Opto Electronics (V00992 - Zhongshan Liandi photoelectric Co.,Ltd)",
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-11-22T11:19:05.191Z"
+      "updatedAt": "2026-11-22T11:26:58.610Z"
     }
   ],
   "proformaInvoices": [],

@@ -61,7 +61,8 @@ function applyToDatabase(db) {
   if (!db.openingBalances) db.openingBalances = [];
 
   for (const item of RAW_ITEMS) {
-    const isCredit = item.inr >= 0;
+    // User convention: - Means Credit balance (Payable), + Means Debit balance (Advance)
+    const isCredit = item.inr < 0;
     const balanceType = isCredit ? 'Cr' : 'Dr';
     const amountINR = Math.abs(item.inr);
     const amountFC = Math.abs(item.fc);
