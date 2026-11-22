@@ -1,36 +1,33 @@
-# 📘 Import Payment Control — Complete Step-by-Step User Guide
+# 📘 Import Payment Control — Complete Step-by-Step User Guide (English Edition)
 
-Welcome to the **Import Payment Control System** (Sakar Electricals & Group Companies). This comprehensive user guide provides a complete, visual walkthrough of every module, explaining how to operate the system with screenshots and real-world workflows.
-
----
-
-## 🌐 Application Access & Credentials
-
-* **Official Production URL**: [http://import.2.31.5.197.sslip.io](http://import.2.31.5.197.sslip.io)
-* **System Architecture**: Multi-Company (Sakar / SVN), Dual-Currency (USD / CNY / INR), RBI IDPMS 180-Day Automated Knock-off, Real-time Forex Gain/Loss Engine.
+Welcome to the **Import Payment Control System** (Sakar Electricals & Group Imports). This operational manual provides an exhaustive, step-by-step visual walkthrough of all system modules, workflows, and regulatory compliance features.
 
 ---
 
-## Step 1: Login & User Profile Selection
+## 🌐 Official Production Access
+
+* **Application URL**: [http://import.2.31.5.197.sslip.io](http://import.2.31.5.197.sslip.io)
+* **Core Capabilities**: Multi-Entity Treasury, Dual-Currency (USD / CNY / INR), RBI IDPMS 180-Day Automated Knock-off, Real-time Forex Fluctuation (FX Gain/Loss) Engine, and Shipping Line Container Demurrage Radar.
+
+---
+
+## Step 1: Authentication & Role-Based Access Control (RBAC)
 
 ![Step 1: Sign In Gate](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step1_login.jpg)
 
-### Kaise Login Karein:
-1. Application URL open karne par modern split-screen **Sign In Screen** open hogi.
-2. **Select User Profile**: Username type karne ki zaroorat nahi hai:
-   * **Dropdown** se apna naam select karein, ya
-   * Niche diye gaye **User Role Cards** (Admin, Management, Operations, Customs, Banking, Purchase) par 1-click karein.
-3. **Password Enter Karein**: Profile select hote hi cursor password field me aa jata hai. Apna password enter karein (eye icon se password show/hide kar sakte hain).
-4. **Sign In Button**: **"Sign In & Open Workspace →"** par click karein.
-
-> [!TIP]
-> Registered Profiles:
-> * **Head Administrator** (`admin`): Full admin controls, company masters, data backup.
-> * **Executive Management** (`management`): Executive dashboard, Net closing positions, FX reports.
-> * **Import Operations Lead** (`executor1`): Commercial invoices, container demurrage.
-> * **Customs & BOE Specialist** (`executor2`): Bill of entry, port clearance, ICEGATE knock-off.
-> * **Bank Remittance Executive** (`executor3`): SWIFT remittances, foreign payments.
-> * **Purchase Manager / Logistics** (`purchase1`, `purchase2`): Proforma invoices, PI advances.
+### How to Sign In:
+1. Open the application URL in any modern web browser to view the split-screen authentication portal.
+2. **Select User Profile**: Manual typing is not required. Either:
+   * Select your designated account from the **User Profile Dropdown**, or
+   * Click directly on your **Role Badge Card** (Admin, Management, Operations, Customs, Banking, or Purchase).
+3. **Password Entry**: The password field automatically focuses upon profile selection. Enter your secure password and click **"Sign In & Open Workspace →"**.
+4. **Predefined System Roles**:
+   * **Head Administrator** (`admin`): Full administrative control, entity masters, and cloud backups.
+   * **Executive Management** (`management`): Executive dashboards, Net Closing positions, and financial FX audits.
+   * **Import Operations Lead** (`executor1`): Commercial invoice booking and container demurrage tracking.
+   * **Customs & BOE Specialist** (`executor2`): Bill of Entry processing, port logistics, and ICEGATE clearance knock-offs.
+   * **Bank Remittance Executive** (`executor3`): Outward foreign currency payments and SWIFT confirmation tracking.
+   * **Purchase & Logistics Managers** (`purchase1`, `purchase2`): Proforma invoices, supplier purchase orders, and advance release approvals.
 
 ---
 
@@ -38,58 +35,56 @@ Welcome to the **Import Payment Control System** (Sakar Electricals & Group Comp
 
 ![Step 2: Executive Dashboard](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step2_dashboard.jpg)
 
-### Dashboard Overview:
-Dashboard khulte hi company ki puri international import financial position samne dikhti hai:
+### Executive Overview & Financial Position:
+The dashboard provides a real-time, consolidated overview of your international trade liabilities:
 
-1. **Top 4 Financial KPI Cards**:
-   * **Total Payables (CR)**: Suppliers ko total kitna foreign currency aur book INR dena baaki hai.
-   * **Advances / Excess (DR)**: Suppliers ke paas hamara kitna advance balance jama hai.
-   * **Overdue Payables**: Kaunse bills due date cross kar chuke hain.
-   * **Realized FX Gain / (Loss)**: FY me foreign exchange fluctuation se kitna profit/loss hua hai.
-2. **Net Closing Position Strip (As-on Date)**:
-   * **Net USD**: Overall US Dollar payable (+) ya advance (−).
-   * **Net CNY**: Overall Chinese Yuan payable (+) ya advance (−).
-   * **Net Book INR**: Net Indian Rupee liability.
+1. **Top 4 Financial KPI Summary Cards**:
+   * **Total Payables (CR)**: Outstanding foreign currency and book INR liabilities owed to overseas suppliers.
+   * **Advances / Excess (DR)**: Advance payments held by overseas suppliers awaiting commercial invoice booking.
+   * **Overdue Payables**: Commercial invoices that have passed their credit maturity period.
+   * **Realized FX Gain / (Loss)**: Net cumulative profit or loss realized from foreign currency exchange fluctuations.
+2. **Net Closing Position Bar (As-on Date)**:
+   * **Net USD**: Consolidated net US Dollar payable (+) or advance held (−).
+   * **Net CNY**: Consolidated net Chinese Yuan payable (+) or advance held (−).
+   * **Net Book INR**: Net Indian Rupee statutory balance sheet liability.
 3. **Party-Wise Closing Balances Table**:
-   * Har supplier ka **Vendor Code** (jaise `V00044`), **Name**, **Dr FC**, **Cr FC**, **Net FC**, **Dr INR**, **Cr INR**, aur **Net Valuation INR** ek nazar me.
-   * **Instant Search Filter**: Top right search bar me supplier ka naam ya code type karte hi table filter ho jati hai.
-   * **Excel Export**: **"Export"** button par click karke party-wise report ko Excel me download kar sakte hain.
-   * **Drill-down**: Kisi bhi party row par click karne se uske saare underlying Commercial Invoices, Payments, aur Advance vouchers ki detailed ledger khul jati hai.
+   * Lists every supplier with **Vendor Code** (e.g. `V00044`), **Supplier Name**, **Dr FC (Advances)**, **Cr FC (Payables)**, **Net FC**, **Dr INR**, **Cr INR**, and **Net Valuation INR**.
+   * **Instant Search Filter**: Type any vendor code or supplier name into the top-right search box to filter rows in real time.
+   * **Excel Export**: Click **"Export"** to download the active party closing ledger directly into Microsoft Excel.
+   * **Audit Drill-down**: Click on any supplier row to reveal a comprehensive transaction history of all underlying commercial invoices, payment vouchers, and advance knock-offs.
 4. **Ageing Analysis**:
-   * Payables (Cr) aur Advances (Dr) ka `<30d`, `31-60d`, `61-90d`, aur `>90d` bucket breakdown table ke theek niche available hai.
+   * Displays Payables (Cr) and Advances (Dr) segmented across `<30d`, `31-60d`, `61-90d`, and `>90d` buckets immediately following the party table.
 
 ---
 
-## Step 3: Excel Copy-Paste & Batch Import (Excel Jaisi Feeling)
+## Step 3: Excel Copy-Paste Batch Import (Fast Data Entry)
 
 ![Step 3: Excel Copy Paste Batch Importer](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step3_excel_paste.png)
 
-### Excel se Direct Data Kaise Dalein:
-Agar aapke paas Excel me data hai, to ek-ek entry manual type karne ki zaroorat nahi hai:
-
-1. Top Navbar me **"Excel Paste & Edit"** button par click karein.
-2. **Select Data Type**: Tab select karein:
-   * Commercial Invoices (Purchase / CI)
+### High-Speed Spreadsheet Batch Entry:
+1. Click the **"Excel Paste & Edit"** button in the top navigation bar from any screen.
+2. **Select Data Entity Tab**:
+   * Commercial Invoices (CI)
    * Payments (Bank Remittances)
    * Opening Balances (Dr/Cr)
    * Item Master (HSN / Duty)
    * Proforma Invoices (PI)
    * Journal Vouchers (JV)
-3. **Paste (Ctrl+V)**:
-   * Excel me se rows copy karein aur box me ya table ke kisi bhi cell par direct **Ctrl+V** dabayein.
-   * System apne aap rows aur columns ko split karke interactive grid me load kar dega.
-4. **Smart Header Recognition**:
-   * Agar aapki Excel me columns aage-peeche hain (jaise SVN opening balances me `Vendor Code | Vendor Name | Opening In INR | Opening In FC`), tab bhi system apne aap columns match kar leta hai.
-   * **Negative Amount (-)** hone par automatic **Credit (Cr / Payable)** banata hai.
-   * **Positive Amount (+)** hone par automatic **Debit (Dr / Advance)** banata hai.
-5. **Keyboard Navigation**:
-   * Kisi bhi cell me `Enter` dabane par cursor niche wale row par chala jata hai.
-   * Aakhiri row me `Enter` dabane par **automatic nayi row add** ho jati hai.
-   * `Arrow Up` / `Arrow Down` aur `Tab` keys Excel ki tarah kaam karti hain.
-6. **Upload Excel File**:
-   * **"Upload Excel File"** button se direct `.xlsx`, `.xls`, ya `.csv` file select karke load kar sakte hain.
-   * **"Template (.xlsx)"** button se blank pre-formatted Excel template download kar sakte hain.
-7. Click **"Save & Apply"** to save all rows directly into the database.
+3. **Direct Cell-Level Paste**:
+   * Copy data from your Excel spreadsheet and press **Ctrl+V** inside any cell in the interactive grid. Multi-row and multi-column data automatically arranges into respective cells.
+   * **Automatic Row Expansion**: If the copied data contains more rows than currently shown, the grid automatically generates the necessary rows.
+4. **Smart Header & Column Synonym Recognition**:
+   * The parser automatically matches headers even if columns are re-ordered (e.g., Vendor Code, Invoice Date, Invoice No, Value FC, Exchange Rate, BOE No, SWIFT).
+5. **SVN Opening Balance Handling**:
+   * When pasting sheets formatted as `Vendor Code | Vendor Name | Opening In INR | Opening In FC`:
+   * **Negative amounts (-)** are automatically recognized as **Credit (Cr / Payable)** and stored as positive figures.
+   * **Positive amounts (+)** are automatically recognized as **Debit (Dr / Advance)**.
+6. **Excel-Style Keyboard Navigation**:
+   * Press **Enter** to move to the cell directly below. Pressing Enter on the last row automatically appends a new row. Use **Arrow Up / Arrow Down** keys to navigate vertically.
+7. **Direct File Upload & Template Download**:
+   * Click **"Upload Excel File"** to import `.xlsx`, `.xls`, or `.csv` files directly.
+   * Click **"Template (.xlsx)"** to download pre-formatted workbooks containing sample rows.
+8. Click **"Save & Apply"** to write all validated records to the database with a single click.
 
 ---
 
@@ -97,71 +92,68 @@ Agar aapke paas Excel me data hai, to ek-ek entry manual type karne ki zaroorat 
 
 ![Step 4: Commercial Invoices and Customs BOE](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step4_ci_customs.png)
 
-### Commercial Invoice Enter Karne Ka Tareeqa:
-1. Left sidebar se **"Commercial Invoices (CI)"** par click karein.
-2. **"+ New Commercial Invoice"** par click karein:
-   * **Company**: Sakar ya SVN select karein.
-   * **Supplier**: Vendor code ya supplier name select karein.
-   * **Invoice Details**: Invoice No (`ciNo`), Invoice Date, Currency (USD/CNY), Invoice Value FC.
-   * **Bill of Entry (BOE)**: Customs BOE No, BOE Date, Port Code (e.g. `INNSA1` for Nhava Sheva, `INMUN1` for Mundra).
-   * **Customs Exchange Rate**: Customs notification rate (e.g. `87.50`). System automatically **Purchase INR** calculate kar lega:
+### Recording Commercial Invoices & Port Clearance:
+1. Navigate to **"Commercial Invoices (CI)"** from the left navigation drawer.
+2. Click **"+ New Commercial Invoice"**:
+   * **Company Entity**: Sakar or SVN.
+   * **Supplier**: Vendor code or supplier name.
+   * **Invoice Details**: Invoice Number (`ciNo`), Invoice Date, Currency (USD/CNY), and Invoice Value (FC).
+   * **Customs Details**: Customs Bill of Entry (BOE) Number, BOE Date, Port Code (e.g., `INNSA1` for Nhava Sheva, `INMUN1` for Mundra), and BOE Customs Exchange Rate.
+   * **Purchase INR Calculation**: The system automatically computes:
      $$\text{Purchase INR} = \text{Invoice Value FC} \times \text{BOE Rate}$$
-   * **Linked PI**: Agar is consignment ka pehle se PI bana hua tha, to select karein taaki pehle se diya gaya advance automatically is bill ke against knock-off ho sake.
-3. Save karne par invoice turant party balance aur customs radar me reflect ho jati hai.
+   * **Linked Proforma Invoice (PI)**: Link open PIs to automatically knock off previously remitted advances against this cargo.
+3. Save the invoice to update supplier ledgers, customs compliance records, and IDPMS knock-off tracking.
 
 ---
 
-## Step 5: Foreign Currency Payments & SWIFT Remittance
+## Step 5: Foreign Currency Payments & SWIFT Tracking
 
 ![Step 5: Foreign Payments and SWIFT Details](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step5_payment_swift.jpg)
 
-### Bank Remittance Enter Karne Ka Tareeqa:
-1. Left sidebar se **"Foreign Remittances"** (Payments) par click karein.
-2. **"+ Record Foreign Remittance"** par click karein:
-   * **Remittance Date**: Bank se jis din payment debit hui.
-   * **Bank Account**: HDFC, DBS, ya ICICI account select karein.
-   * **Supplier & Currency**: Supplier aur currency (USD / CNY) select karein.
-   * **Remittance Amount (FC)**: Amount in USD / CNY.
-   * **Bank TT / Exchange Rate**: Bank ne jo actual debit rate lagaya (e.g. `88.10`).
-   * **Debit in INR**: System automatically calculate karta hai:
-     $$\text{INR Amount} = \text{Amount FC} \times \text{Bank Rate}$$
-   * **SWIFT No & UTR Ref**: Bank ka SWIFT MT103 copy number aur UTR number enter karein.
-   * **Payment Against**: Select karein:
-     * **Advance against PI**: Mal aane se pehle advance payment.
-     * **Direct against Commercial Invoice**: Cargo customs clear hone ke baad invoice payment.
-3. Click **"Save Payment Voucher"**. System automatic FIFO ya bill-to-bill knock-off perform karta hai.
+### Recording Bank Remittances & SWIFT Advices:
+1. Navigate to **"Foreign Remittances"** from the left navigation drawer.
+2. Click **"+ Record Foreign Remittance"**:
+   * **Remittance Date**: Actual date of bank debit.
+   * **Bank Account**: Disbursing bank (e.g. HDFC Bank, DBS Bank, ICICI Bank).
+   * **Supplier & Currency**: Supplier account and currency (USD / CNY).
+   * **Amount (FC) & Bank TT Exchange Rate**: Exact foreign currency remitted and bank debit exchange rate. The system computes:
+     $$\text{INR Amount} = \text{Amount FC} \times \text{Bank Exchange Rate}$$
+   * **SWIFT Confirmation**: Enter the SWIFT MT103 advice number and Bank UTR reference for audit tracking.
+   * **Payment Allocation**:
+     * *Advance against PI*: Advance remittance prior to supplier dispatch.
+     * *Direct against Commercial Invoice*: Settlement of customs-cleared invoices.
+3. Click **"Save Payment Voucher"** to execute automated FIFO or bill-specific allocation against open payables.
 
 ---
 
-## Step 6: Foreign Exchange (FX) Gain / Loss Engine
+## Step 6: Realized & Unrealized FX Gain / Loss Engine
 
 ![Step 6: Realized and Unrealized FX Gain Loss](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step6_fx_gain_loss.png)
 
-### FX Gain / Loss Kaise Kaam Karta Hai:
-International trade me exchange rates constantly change hote hain. Yeh module complete bill-wise gain/loss calculate karta hai jise year-end audit aur P&L me match kiya ja sakta hai:
+### Foreign Exchange Fluctuation Accounting:
+This module automatically calculates transaction-level forex variance for year-end statutory audits and P&L matching:
 
-1. **Realized FX Gain / (Loss) Formula**:
+1. **Realized Foreign Exchange Gain / (Loss) Formula**:
    $$\text{FX Gain / (Loss)} = \text{Settled FC} \times (\text{BOE Invoice Rate} - \text{Bank Payment Rate})$$
-   * **Gain (Profit)**: Agar bill booking ke time rate ₹88.00 tha, aur payment ke time rate ₹87.20 laga, to ₹0.80/FC ka **Exchange Gain** hua.
-   * **Loss**: Agar payment ke time rate ₹88.50 laga, to ₹0.50/FC ka **Exchange Loss** hua.
-2. **Unrealized Month-End Revaluation**:
-   * Jo bills month-end par open reh gaye, unhe latest RBI / Month-end benchmark rate par revalue kiya jata hai, taaki Balance Sheet me true liability dikhe.
-3. **Audit Trail & Export**:
-   * Har bill ka BOE No, Invoice Date, Payment Date, Bank UTR, aur Gain/Loss amount row-by-row dikhta hai.
-   * **"Export to Excel"** par click karke CA / Auditor ko audit working direct forward kar sakte hain.
+   * **Exchange Gain (Profit)**: If an invoice was booked at ₹88.00 and the bank remittance was debited at ₹87.20, an exchange gain of ₹0.80 per FC is booked.
+   * **Exchange Loss**: If the remittance was executed at ₹88.50, an exchange loss of ₹0.50 per FC is booked.
+2. **Month-End Unrealized Forex Revaluation**:
+   * Open liabilities and unapplied advances are revalued against the latest month-end benchmark exchange rate to reflect accurate Balance Sheet values.
+3. **Auditor Working & Export**:
+   * Displays BOE Numbers, Invoice Dates, Remittance Dates, Bank UTR Numbers, and realized profit/loss row-by-row.
+   * Click **"Export to Excel"** to provide your Chartered Accountant or Statutory Auditor with complete working schedules.
 
 ---
 
-## Step 7: Proforma Invoices (PI) & Purchase Requisitions
+## Step 7: Proforma Invoices (PI) & Purchase Orders
 
 ![Step 7: Proforma Invoices Tracking](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step7_pi_purchase.png)
 
-### Purchase Desk Workflow:
-1. Vendor se **Proforma Invoice (PI)** aane par use system me register karein:
-   * Vendor Name, PI No, PI Date, Total PI Value FC, aur Advance % (e.g. 30% advance, 70% against BL).
-2. **Pending Advance Radar**:
-   * System calculate karta hai ki vendor ko kitna advance remittance bhejna baaki hai cargo dispatch karne se pehle.
-3. Jab payment ki jati hai, to PI ke sath link karne par balance automatic deduct ho jata hai.
+### Procurement & Order Tracking:
+1. Upon receiving an order confirmation or PI from an overseas supplier, record it under the **"Proforma Invoices (PI)"** desk.
+2. Record PI Number, PI Date, Currency, Total Value (FC), and agreed Payment Terms (e.g., 30% Advance, 70% against B/L).
+3. **Pending Advance Radar**: The system monitors open PIs and flags mandatory advance transfers required before suppliers dispatch cargo.
+4. When foreign remittance vouchers are linked to the PI, the advance balance is automatically adjusted.
 
 ---
 
@@ -169,23 +161,23 @@ International trade me exchange rates constantly change hote hain. Yeh module co
 
 ![Step 8: Container Detention and IDPMS Radar](file:///C:/Users/SAKAR/.gemini/antigravity/brain/00dec5e7-6445-48ff-b8d7-672ffb3bf86b/step8_container_radar.png)
 
-### Regulatory & Logistics Safety:
+### Regulatory & Port Safety:
 1. **Shipping Line Container Detention Radar**:
-   * Port par container discharge hone ke baad shipping lines (Maersk, MSC, COSCO) aam taur par **14 days free time** deti hain.
-   * 14 din ke baad **\$50 se \$150 per day per container** detention penalty lagti hai.
-   * Radar me live counter dikhta hai ki container return karne me kitne din bache hain. Expiry warning aate hi transport team ko empty container return ka alert milta hai.
-2. **RBI 180-Day IDPMS Radar**:
-   * RBI Master Direction ke tehat, jab bhi foreign remittance bheja jata hai, to **180 dino ke andar Customs Bill of Entry (BOE)** ko bank me IDPMS portal par knock-off karana compulsory hai.
-   * System har remittance ki 180-day deadline monitor karta hai. Agar koi remittance 150 din cross kar chuka hai aur BOE submit nahi hui, to dashboard par prominent alert show hota hai.
+   * Ocean shipping lines (e.g., Maersk, MSC, COSCO) provide a standard **14-day free period** following container discharge.
+   * Detention penalties ranging from **\$50 to \$150 per container per day** apply thereafter.
+   * The radar monitors remaining free days in real time, alerting logistics coordinators to return empty containers before incurring detention charges.
+2. **RBI 180-Day IDPMS Compliance Radar**:
+   * Under Reserve Bank of India (RBI) Master Directions, every outward advance remittance must be matched against a Customs Bill of Entry (BOE) on the bank IDPMS portal within 180 days.
+   * The system monitors all advance remittances against this 180-day deadline, generating early warnings at 150 days to maintain complete statutory compliance.
 
 ---
 
-## 💡 Quick Tips for Daily Operations
+## 💡 Key Operational Practices
 
 > [!TIP]
-> * **Data Save Ka Dhyan**: Jab bhi naya voucher create karein ya Excel paste karein, **"Save"** button dabane par database cloud me instant sync ho jata hai.
-> * **Multi-Company Switch**: Top header me company dropdown (Sakar / SVN / All Companies) se aap instantly company-wise ya consolidated reporting dekh sakte hain.
-> * **As-On Date Filter**: Header me calendar se kisi bhi purani date ka Net Closing balance dekh sakte hain (e.g. 31st March year-end position).
+> * **Data Persistence**: Click **"Save Data"** in the top navigation bar at the end of every work session to trigger an immediate cloud database snapshot.
+> * **Multi-Company Filtering**: Use the top-left company selector to switch seamlessly between Sakar, SVN, or Consolidated group-level reporting.
+> * **Historical As-On Date Audits**: Select any past date from the header calendar to reconstruct historical balance sheets and audit positions (e.g., March 31st financial year-end).
 
 ---
 

@@ -12,7 +12,8 @@ import {
   Ship,
   CheckCircle2,
   ChevronRight,
-  ExternalLink,
+  Download,
+  Search,
 } from 'lucide-react';
 
 interface UserGuideModalProps {
@@ -28,54 +29,68 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
   const steps = [
     {
       id: 1,
-      title: 'Step 1: Login & User Selection',
+      title: 'Step 1: Sign In & Role Selection',
       short: 'Sign In & RBAC',
       icon: Shield,
       color: 'from-indigo-600 to-blue-600',
       tag: 'Authentication',
-      summary: 'Kaise login karein aur apna role select karein:',
+      summary: 'Secure login with predefined role selection and session management:',
       details: [
-        'URL open karne par modern split-screen Sign In screen khulegi.',
-        'User Profile Selector: Username type karne ki zaroorat nahi hai. Dropdown se ya niche diye gaye User Role Cards (Admin, Management, Operations, Customs, Banking, Purchase) par click karein.',
-        'Password Dalein: Apna password enter karein aur "Sign In & Open Workspace" button dabayein.',
-        'Registered Profiles: Head Administrator (admin), Executive Management (management), Operations Lead (executor1), Customs Specialist (executor2), Bank Remittance (executor3), Purchase Manager (purchase1/2).',
+        'Open the official web application URL: http://import.2.31.5.197.sslip.io to view the modern split-screen authentication portal.',
+        'Select User Profile: You do not need to type usernames manually. Select your profile from the dropdown or click your role badge card (Admin, Management, Operations, Customs, Banking, or Purchase).',
+        'Enter Password: The password input field will automatically focus upon profile selection. Enter your secure password and click "Sign In & Open Workspace →".',
+        'Predefined Roles & Access Privileges:',
+        '• Head Administrator (admin): Master administrative control, user permissions, and database backup.',
+        '• Executive Management (management): Executive dashboard oversight, Net Closing positions, and financial FX audits.',
+        '• Import Operations Lead (executor1): Commercial invoice booking and container demurrage tracking.',
+        '• Customs & BOE Specialist (executor2): Bill of Entry entry, port logistics, and ICEGATE clearance knock-off.',
+        '• Bank Remittance Executive (executor3): Outward foreign currency payments and SWIFT confirmation tracking.',
+        '• Purchase & Logistics Managers (purchase1, purchase2): Proforma invoices, vendor purchase orders, and advance release approvals.',
       ],
     },
     {
       id: 2,
-      title: 'Step 2: Executive Dashboard',
+      title: 'Step 2: Executive Dashboard & Party Balances',
       short: 'Dashboard Overview',
       icon: LayoutDashboard,
       color: 'from-blue-600 to-indigo-600',
-      tag: 'Executive Position',
-      summary: 'Dashboard me real-time business status samajhna:',
+      tag: 'Financial Position',
+      summary: 'Real-time financial status, Net Closing positions, and vendor ledgers:',
       details: [
-        'Top 4 KPI Cards: Total Payables (CR) [supplier ko dena baaki], Advances/Excess (DR) [hamare advances], Overdue Payables, aur Realized FX Gain/Loss.',
-        'Net Closing Position Bar: Net USD (+/-), Net CNY (+/-), aur Net Book INR ek line me summary.',
-        'Party-Wise Closing Balances Table: Har supplier ka Vendor Code (e.g. V00044), Dr FC (Advance), Cr FC (Payable), Net FC, Dr INR, Cr INR, aur Net Valuation INR.',
-        'Instant Search Bar: Top-right search box me vendor code ya supplier name likhte hi table filter ho jati hai.',
-        'One-Click Excel Export: "Export" button dabakar party closing report Excel me download kar sakte hain.',
-        'Row Drill-Down: Kisi bhi party par click karne par uske saare commercial invoices, payments aur advance vouchers ki detail ledger khul jati hai.',
-        'Ageing Analysis: Payables aur Advances ka <30d, 31-60d, 61-90d, >90d breakdown table ke theek niche available hai.',
+        'Top 4 Financial KPI Summary Cards:',
+        '• Total Payables (CR): Total outstanding foreign currency and book INR liabilities owed to overseas suppliers.',
+        '• Advances / Excess (DR): Total advance payments held by overseas suppliers awaiting commercial invoice booking.',
+        '• Overdue Payables: Commercial invoices past credit period requiring immediate settlement.',
+        '• Realized FX Gain / (Loss): Cumulative exchange fluctuation gains or losses realized upon bill settlement.',
+        'Net Closing Position Bar (As-on Date): Displays consolidated net balances in USD, CNY, and Book INR.',
+        'Party-Wise Closing Balances Table (Positioned directly below the Net Closing Bar):',
+        '• Displays Vendor Code (e.g. V00044), Supplier Name, Dr FC (Advances), Cr FC (Payables), Net FC, Dr INR, Cr INR, and Net Valuation INR.',
+        '• Instant Search Filter: Type any vendor code (e.g. V00044) or supplier name into the top-right search box to filter rows instantly.',
+        '• One-Click Excel Export: Click "Export" to download the filtered party closing balances into a formatted Excel sheet.',
+        '• Drill-Down Ledger: Click any party row to view the full audit history of underlying commercial invoices, payment vouchers, and advance knock-offs.',
+        'Ageing Analysis: Payables and Advances aged across <30d, 31-60d, 61-90d, and >90d buckets positioned immediately beneath the party table.',
       ],
     },
     {
       id: 3,
-      title: 'Step 3: Excel Copy-Paste Batch Import',
+      title: 'Step 3: Excel Copy-Paste & Batch Import',
       short: 'Excel Importer',
       icon: FileSpreadsheet,
       color: 'from-emerald-600 to-teal-600',
       tag: 'Fast Data Entry',
-      summary: 'Excel se direct copy-paste kaise karein (Excel Jaisi Feeling):',
+      summary: 'High-speed spreadsheet copy-paste, cell-level paste, and file uploads:',
       details: [
-        'Top Navbar me "Excel Paste & Edit" button par click karein.',
-        'Data Type Select Karein: Commercial Invoices (CI), Payments (Bank Remittance), Opening Balances (Dr/Cr), Items, PI, ya JV.',
-        'Direct Cell Paste: Table ke kisi bhi cell par click karke direct Ctrl+V dabayein. Excel ka pura data usi cell se aage aur niche arrange ho jayega.',
-        'Auto-Add Rows: Agar Excel me 20 rows hain, to paste karte hi saare rows automatic add ho jayenge.',
-        'Smart Header Matching: Agar aapne header ke sath copy kiya hai (chahe columns aage-peeche ho), system automatic sahi column match kar leta hai.',
-        'SVN Opening Format Auto-Handled: "Vendor Code | Vendor Name | Opening in INR | Opening in FC" aisi sheet paste karne par negative amount (-) ko automatic Credit (Cr) aur positive (+) ko Debit (Dr) banata hai.',
-        'Excel Keyboard Navigation: Enter dabane par cursor niche jata hai (last row par Enter dabane par automatic new row add hoti hai). Arrow Up/Down se row navigate kar sakte hain.',
-        'Upload Excel File: File upload button se direct .xlsx file select kar sakte hain, ya "Template (.xlsx)" download kar sakte hain.',
+        'Click the "Excel Paste & Edit" button located in the top navigation bar from any screen.',
+        'Select Data Entity Tab: Choose between Commercial Invoices (CI), Payments (Bank Remittance), Opening Balances (Dr/Cr), Item Master, Proforma Invoices (PI), or Journal Vouchers (JV).',
+        'Direct Cell-Level Paste: Click into any cell inside the interactive table and press Ctrl+V. Multi-line and multi-column Excel data will populate automatically across columns and down rows.',
+        'Automatic Row Expansion: If your copied Excel data contains 20 rows and only 1 row exists in the grid, the table expands automatically to accommodate all rows.',
+        'Smart Header & Synonym Mapping: When copying columns with headers in any order, the system automatically detects column titles (e.g., Vendor Code, Invoice Date, CI No, Amount FC, Exchange Rate, BOE No, SWIFT).',
+        'SVN Opening Balance Recognition: When copying sheets in format "Vendor Code | Vendor Name | Opening In INR | Opening In FC":',
+        '• Negative amounts (-) are automatically classified as Credit (Cr / Payable) and stored as clean absolute figures.',
+        '• Positive amounts (+) are automatically classified as Debit (Dr / Advance).',
+        'Excel-Style Keyboard Navigation: Press Enter to move down to the next row (pressing Enter on the last row auto-creates a new row). Use Arrow keys to navigate vertically.',
+        'Upload Excel File: Click "Upload Excel File" to load .xlsx, .xls, or .csv files directly. Click "Template (.xlsx)" to download pre-formatted templates with sample data.',
+        'Click "Save & Apply" to commit all validated rows to the cloud database with one click.',
       ],
     },
     {
@@ -85,14 +100,15 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
       icon: FileCheck2,
       color: 'from-cyan-600 to-blue-600',
       tag: 'Customs Clearance',
-      summary: 'Commercial Invoices aur Bill of Entry enter karne ka tareeqa:',
+      summary: 'Booking purchase invoices, customs duty, and Bill of Entry clearance:',
       details: [
-        'Left sidebar me "Commercial Invoices (CI)" par jayein.',
-        '"+ New Commercial Invoice" button click karein.',
-        'Company, Supplier, Invoice No, Invoice Date, Currency (USD/CNY), aur Invoice Value FC bharein.',
-        'Customs Bill of Entry (BOE): BOE No, BOE Date, Port Code (INNSA1 Nhava Sheva / INMUN1 Mundra), aur BOE Customs Exchange Rate dalein.',
-        'System automatically Purchase INR calculate karta hai: Purchase INR = Invoice FC × BOE Rate.',
-        'Linked PI: Agar is bill ka pehle advance diya tha, to PI select karein taaki advance automatically deduct ho jaye.',
+        'Navigate to "Commercial Invoices (CI)" from the left navigation drawer.',
+        'Click "+ New Commercial Invoice" to open the invoice entry form.',
+        'Enter Company Entity, Supplier, Invoice No (CI No), Invoice Date, Currency (USD/CNY), and Invoice Value (FC).',
+        'Enter Customs Details: Bill of Entry (BOE) No, BOE Date, Port Code (INNSA1 for Nhava Sheva / INMUN1 for Mundra), and BOE Customs Exchange Rate.',
+        'The system automatically computes Purchase INR: Purchase INR = Invoice Value FC × BOE Exchange Rate.',
+        'Link to Proforma Invoice (PI): Select the linked PI to automatically knock off previously remitted advance payments against this cargo.',
+        'Save the invoice to instantly update party liabilities, customs compliance tracking, and IDPMS knock-off records.',
       ],
     },
     {
@@ -101,16 +117,19 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
       short: 'Payments & SWIFT',
       icon: Coins,
       color: 'from-amber-600 to-orange-600',
-      tag: 'Bank Remittance',
-      summary: 'Bank se foreign payment aur SWIFT entry kaise karein:',
+      tag: 'Treasury Banking',
+      summary: 'Recording foreign remittances, bank exchange rates, and SWIFT details:',
       details: [
-        'Left sidebar me "Foreign Remittances" par click karein.',
-        '"+ Record Foreign Remittance" button click karein.',
-        'Remittance Date, Bank Account (HDFC/DBS/ICICI), Supplier, aur Currency select karein.',
-        'Remittance Amount (FC) aur Bank Actual Exchange Rate dalein. System automatically debit INR calculate kar lega: INR = Amount FC × Bank Rate.',
-        'SWIFT No aur Bank UTR No dalein (bank confirmation copy track karne ke liye).',
-        'Payment Against: "Advance against PI" ya "Direct against Commercial Invoice" choose karein.',
-        'Save karne par system FIFO ya linked invoice ke against automatic knock-off karta hai.',
+        'Navigate to "Foreign Remittances" from the left navigation drawer.',
+        'Click "+ Record Foreign Remittance" to open the payment voucher form.',
+        'Select Remittance Date, Bank Account (e.g. HDFC Bank, DBS Bank), Supplier, and Currency (USD / CNY).',
+        'Enter Remittance Amount (FC) and the actual Bank TT Exchange Rate applied by your bank.',
+        'The system automatically calculates the exact INR debit: Debit INR = Amount FC × Bank Exchange Rate.',
+        'Record Banking Identifiers: Enter the SWIFT MT103 confirmation number and Bank UTR reference for audit verification.',
+        'Select Payment Nature:',
+        '• Advance against PI: For advance payments remitted before vendor dispatches cargo.',
+        '• Direct against Commercial Invoice: For post-customs clearance invoice settlements.',
+        'Click "Save Payment Voucher" to execute automated FIFO or bill-specific allocation against open payables.',
       ],
     },
     {
@@ -119,15 +138,16 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
       short: 'Forex Engine',
       icon: TrendingUp,
       color: 'from-emerald-600 to-green-700',
-      tag: 'Auditor & P&L',
-      summary: 'Foreign exchange profit/loss calculate karna aur match karna:',
+      tag: 'Statutory Audit',
+      summary: 'Forex exchange fluctuation calculations, revaluation, and auditor reports:',
       details: [
-        'Left sidebar me "Realized FX Gain / Loss" par click karein.',
-        'Formula: FX Gain/Loss = Settled FC × (BOE Invoice Rate - Bank Payment Rate).',
-        'Gain (Faayda): Agar booking rate ₹88.00 tha aur payment ₹87.20 par hui, to ₹0.80/FC ka Realized FX Gain book hoga.',
-        'Loss (Nuksan): Agar payment rate ₹88.50 laga, to ₹0.50/FC ka Realized FX Loss book hoga.',
-        'Month-End Unrealized Revaluation: Open balances ko latest benchmark rate par revalue kiya jata hai taaki year-end Balance Sheet me true liability dikhe.',
-        'Export to Excel: Auditor/CA ke liye pura bill-wise working 1-click me Excel export ho jata hai.',
+        'Navigate to "Realized FX Gain / Loss" from the executive desk.',
+        'Realized Foreign Exchange Gain / (Loss) Formula:',
+        'FX Gain / (Loss) = Settled FC × (BOE Invoice Rate - Actual Bank Payment Rate)',
+        '• Exchange Gain (Profit): If the commercial invoice was booked at ₹88.00 and the bank remittance was executed at ₹87.20, an exchange gain of ₹0.80 per FC is realized.',
+        '• Exchange Loss: If the bank remittance rate was ₹88.50, an exchange loss of ₹0.50 per FC is realized.',
+        'Month-End Unrealized Forex Revaluation: Revalues all unapplied advances and open commercial invoices at the latest month-end benchmark exchange rate for accurate Balance Sheet reporting.',
+        'Auditor Working Export: Click "Export to Excel" to download a complete bill-wise statement with BOE references, payment dates, bank UTR numbers, and realized gain/loss breakdowns for statutory auditors.',
       ],
     },
     {
@@ -137,26 +157,26 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
       icon: Package,
       color: 'from-purple-600 to-indigo-600',
       tag: 'Procurement',
-      summary: 'Proforma Invoices aur order advances maintain karna:',
+      summary: 'Managing supplier proforma orders, advance terms, and dispatch follow-ups:',
       details: [
-        'Supplier se PI aane par "Proforma Invoices (PI)" screen par add karein.',
-        'PI No, PI Date, PI Value FC, aur Advance % (e.g. 30% advance, 70% against BL) dalein.',
-        'Pending Advance Alert: System show karta hai ki cargo dispatch hone se pehle kitna advance remittance bank se bhejna zaroori hai.',
-        'Payment hone par balance automatically reduce ho jata hai.',
+        'Upon receiving a Proforma Invoice from an overseas vendor, record it under the "Proforma Invoices (PI)" desk.',
+        'Enter PI Number, PI Date, Currency, Total Value (FC), and agreed Payment Terms (e.g., 30% Advance, 70% CAD / against B/L).',
+        'Pending Advance Radar: The system monitors open PIs and calculates the mandatory advance remittances required before vendors dispatch cargo.',
+        'When foreign remittance vouchers are linked to the PI, the advance balance is automatically credited and subsequently knocked off upon cargo arrival.',
       ],
     },
     {
       id: 8,
-      title: 'Step 8: Container Demurrage & RBI IDPMS Radar',
+      title: 'Step 8: Container Demurrage & RBI IDPMS 180-Day Radar',
       short: 'Customs & Logistics',
       icon: Ship,
       color: 'from-rose-600 to-red-700',
-      tag: 'Compliance & Safety',
-      summary: 'Shipping line penalty aur RBI compliance se bachna:',
+      tag: 'Regulatory Safety',
+      summary: 'Monitoring 14-day container detention and statutory RBI IDPMS deadlines:',
       details: [
-        'Container Detention Radar: Sea port par container discharge hone ke baad 14 days free time milta hai. 14 din ke baad $50 se $150/day detention penalty lagti hai. Radar me live days counter chalta hai taaki penalty na lage.',
-        'RBI 180-Day IDPMS Radar: RBI Master Direction ke mutabiq foreign remittance ke 180 dino ke andar Bill of Entry (BOE) bank me submit karke knock-off karana zaroori hai.',
-        'System har remittance ki 180-day deadline monitor karta hai aur time se pehle alert deta hai.',
+        'Shipping Line Container Detention Radar: Ocean shipping lines (e.g., Maersk, MSC, COSCO) provide a standard 14-day free period after vessel discharge. Demurrage penalties of $50 to $150 per container per day apply beyond this window. The radar tracks remaining free days in real time to ensure timely empty container return.',
+        'RBI 180-Day IDPMS Compliance Radar: In accordance with Reserve Bank of India (RBI) Master Directions, every outward advance remittance must be matched against a Customs Bill of Entry (BOE) on the bank IDPMS portal within 180 days.',
+        'The system tracks all advance remittances against their 180-day regulatory timeline, flagging warnings at 150 days and overdue alerts at 180 days to maintain flawless statutory compliance.',
       ],
     },
   ];
@@ -167,7 +187,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-6 overflow-y-auto">
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden">
         
-        {/* Header */}
+        {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between bg-slate-50/80 dark:bg-slate-800/50">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-sky-400 text-white flex items-center justify-center shadow-md shadow-indigo-600/25">
@@ -179,11 +199,11 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
                   Import Payment Control — Step-by-Step User Guide
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 uppercase">
-                  Complete Manual
+                  Official Manual
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Application ke sabhi modules ko use karne ka aasan tareeqa (Step 1 se Step 8)
+                Comprehensive operational manual and workflow instructions (Step 1 through Step 8)
               </p>
             </div>
           </div>
@@ -240,7 +260,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
 
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Mukhya Steps &amp; Guidelines:
+              Operational Instructions &amp; Guidelines:
             </h4>
             <div className="grid grid-cols-1 gap-2.5">
               {current.details.map((item, i) => (
