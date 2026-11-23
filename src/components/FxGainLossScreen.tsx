@@ -157,7 +157,7 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
         billRate,
         billValueINR,
         paymentDate: alloc.paymentDate,
-        bankName: bank ? `${bank.bankName} (A/c: ${bank.accountNumber})` : 'Bank Outward',
+        bankName: bank ? `${bank.bankName} - ${bank.accountNumber.slice(-4)}` : 'Bank Outward',
         bankRefNo: pmt?.bankReferenceNo || '-',
         utrNo: utrNo || '-',
         swiftNo: swiftNo || '-',

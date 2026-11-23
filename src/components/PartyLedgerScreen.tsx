@@ -68,7 +68,7 @@ export const PartyLedgerScreen: React.FC = () => {
   const bankLabel = (bankId?: string) => {
     if (!bankId) return '-';
     const b = bankMap.get(bankId);
-    return b ? `${b.bankName} (A/c: ${b.accountNumber})` : bankId;
+    return b ? `${b.bankName} - ${b.accountNumber.slice(-4)}` : bankId;
   };
 
   // Compile Ledger Transactions & Cumulative Balances
@@ -678,11 +678,10 @@ export const PartyLedgerScreen: React.FC = () => {
               <tr className="bg-slate-100/90 dark:bg-slate-800/90 font-black text-slate-900 dark:text-white border-t-2 border-slate-300 dark:border-white/20">
                 <td className="px-4 py-3 uppercase tracking-wider flex items-center justify-between">
                   <span>CLOSING BALANCE</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                    ledgerResult.closingINR >= 0
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${ledgerResult.closingINR >= 0
                       ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
                       : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                  }`}>
+                    }`}>
                     {ledgerResult.closingINR >= 0 ? '+ Payable (Cr)' : '− Debit Balance (Dr)'}
                   </span>
                 </td>
