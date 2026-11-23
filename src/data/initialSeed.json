@@ -28,37 +28,37 @@
       "id": "bank-hdfc-sakar",
       "companyId": "comp-sakar",
       "bankName": "HDFC Bank",
-      "branch": "Main",
-      "accountNumber": "50200055443322",
-      "adCode": "",
+      "branch": "Main - Sakar",
+      "accountNumber": "Sakar-HDFC-0575",
+      "adCode": "0510001",
       "currency": "INR",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-04-01T00:00:00.000Z"
+      "updatedAt": "2026-11-23T00:00:00.000Z"
     },
     {
       "id": "bank-hdfc-svn",
       "companyId": "comp-svn",
       "bankName": "HDFC Bank",
-      "branch": "Main",
-      "accountNumber": "50200012345678",
-      "adCode": "",
+      "branch": "Main - SVN",
+      "accountNumber": "SVN HDFC-2021",
+      "adCode": "0510002",
       "currency": "INR",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-04-01T00:00:00.000Z"
+      "updatedAt": "2026-11-23T00:00:00.000Z"
     },
     {
       "id": "bank-dbs-svn",
       "companyId": "comp-svn",
       "bankName": "DBS Bank",
-      "branch": "Main",
-      "accountNumber": "88100098765432",
-      "adCode": "",
+      "branch": "Main - SVN",
+      "accountNumber": "SVN-DBS-5128",
+      "adCode": "0810003",
       "currency": "INR",
       "active": true,
       "createdAt": "2026-04-01T00:00:00.000Z",
-      "updatedAt": "2026-04-01T00:00:00.000Z"
+      "updatedAt": "2026-11-23T00:00:00.000Z"
     }
   ],
   "suppliers": [

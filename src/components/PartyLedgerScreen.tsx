@@ -68,7 +68,7 @@ export const PartyLedgerScreen: React.FC = () => {
   const bankLabel = (bankId?: string) => {
     if (!bankId) return '-';
     const b = bankMap.get(bankId);
-    return b ? `${b.bankName} - ${b.accountNumber.slice(-4)}` : bankId;
+    return b ? `${b.bankName} (A/c: ${b.accountNumber})` : bankId;
   };
 
   // Compile Ledger Transactions & Cumulative Balances
@@ -298,6 +298,36 @@ export const PartyLedgerScreen: React.FC = () => {
           utrLcBoe: `JV: ${adj.id.slice(-6)}`,
           lcOpenFC: 0,
           remarks: `JV Transfer: ${adj.fromType} → ${adj.toType} (${formatFC(adj.amountFC)} ${adj.currency}) | ${adj.remarks || 'Inter-doc balance adjustment'}`,
+        });
+      });
+
+    // 7. Forex Gain / Loss Adjustments (Confirmed & Transferred to Ledger)
+    (db.forexAdjustments || [])
+      .filter(fx => {
+        if (!fx.transferredToLedger) return false;
+        if (fx.supplierId !== selectedVendorId) return false;
+        if (filterCompany !== 'ALL' && fx.companyId !== filterCompany) return false;
+        if (currencyFilter !== 'ALL' && fx.currency !== currencyFilter) return false;
+        return true;
+      })
+      .forEach(fx => {
+        const isGain = fx.realizedGainLossINR >= 0;
+        const absINR = Math.abs(fx.realizedGainLossINR);
+        allEntries.push({
+          id: `FX-${fx.id}`,
+          date: fx.date,
+          sortOrder: 6,
+          type: isGain ? 'Forex Gain (Credit Adj)' : 'Forex Loss (Debit Adj)',
+          curr: fx.currency,
+          piNo: '-',
+          ciNo: fx.ciNo || '-',
+          billFC: 0,
+          paymentFC: 0,
+          billINR: isGain ? absINR : 0,
+          paymentINR: !isGain ? absINR : 0,
+          utrLcBoe: fx.voucherNo || (fx.boeNo ? `BOE: ${fx.boeNo}` : 'JV-FX'),
+          lcOpenFC: 0,
+          remarks: `${isGain ? 'Realized Exchange Gain' : 'Realized Exchange Loss'} @ Bill ₹${formatRate(fx.billRate)} vs Paid ₹${formatRate(fx.paymentRate)}${fx.paymentRef ? ` | Ref: ${fx.paymentRef}` : ''} | ${fx.remarks || 'Forex bill-to-bill adjustment'}`,
         });
       });
 

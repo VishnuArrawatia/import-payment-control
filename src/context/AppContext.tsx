@@ -22,6 +22,7 @@ import {
   IGCRLot,
   IGCRConsumption,
   PaymentTerms,
+  ForexAdjustmentEntry,
 } from '../types';
 import {
   loadDatabase,
@@ -93,6 +94,8 @@ interface AppContextType {
   saveAdjustment: (adj: AdjustmentTransfer) => void;
   saveOpeningBalance: (ob: OpeningBalance) => { success: boolean; error?: string };
   saveBOESubmission: (sub: BOEBankSubmission) => void;
+  saveForexAdjustment: (entry: ForexAdjustmentEntry) => { success: boolean; error?: string };
+  transferForexToLedger: (ids: string[]) => { success: boolean; count: number; error?: string };
   batchImportOpeningBalances: (obs: OpeningBalance[]) => void;
   batchImportSuppliers: (suppliers: Supplier[]) => void;
   batchImportCompanies: (companies: Company[]) => void;
@@ -491,6 +494,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ? db.boeSubmissions.map(s => (s.id === sub.id ? finalSub : s))
       : [...db.boeSubmissions, finalSub];
     void saveDatabase({ ...db, boeSubmissions: updated }, false, `Saved BOE Submission for BOE ${sub.boeNo}`, actor);
+  };
+
+  const saveForexAdjustment = (entry: ForexAdjustmentEntry): { success: boolean; error?: string } => {
+    const finalEntry: ForexAdjustmentEntry = {
+      ...entry,
+      updatedAt: new Date().toISOString(),
+      createdAt: entry.createdAt || new Date().toISOString(),
+    };
+    const list = db.forexAdjustments || [];
+    const existing = list.find(e => e.id === entry.id);
+    const updated = existing
+      ? list.map(e => (e.id === entry.id ? finalEntry : e))
+      : [...list, finalEntry];
+    void saveDatabase({ ...db, forexAdjustments: updated }, false, `Saved FX Adjustment: ${entry.realizedGainLossINR >= 0 ? 'Gain' : 'Loss'} ₹${Math.abs(entry.realizedGainLossINR)}`, actor);
+    return { success: true };
+  };
+
+  const transferForexToLedger = (ids: string[]): { success: boolean; count: number; error?: string } => {
+    if (!ids || ids.length === 0) return { success: false, count: 0, error: 'No entries selected' };
+    const list = db.forexAdjustments || [];
+    const idSet = new Set(ids);
+    const now = new Date().toISOString();
+    let count = 0;
+    const updated = list.map(e => {
+      if (idSet.has(e.id)) {
+        count++;
+        return {
+          ...e,
+          transferredToLedger: true,
+          transferredAt: now,
+          voucherNo: e.voucherNo || `JV-FX-${Date.now().toString().slice(-6)}-${count}`,
+          updatedAt: now,
+        };
+      }
+      return e;
+    });
+    void saveDatabase({ ...db, forexAdjustments: updated }, false, `Transferred ${count} FX Adjustments to Supplier Ledger`, actor);
+    return { success: true, count };
   };
 
   const batchImportOpeningBalances = (obs: OpeningBalance[]) => {
@@ -983,6 +1024,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveAdjustment,
         saveOpeningBalance,
         saveBOESubmission,
+        saveForexAdjustment,
+        transferForexToLedger,
         batchImportOpeningBalances,
         batchImportSuppliers,
         batchImportCompanies,

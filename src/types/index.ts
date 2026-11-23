@@ -279,6 +279,32 @@ export interface AdjustmentTransfer {
   updatedAt: string;
 }
 
+export interface ForexAdjustmentEntry {
+  id: string;
+  companyId: string;
+  supplierId: string;
+  currency: CurrencyCode;
+  date: string; // YYYY-MM-DD
+  allocationId?: string; // links to engine allocation if pushed from derived row
+  ciId?: string; // linked CI / bill
+  ciNo?: string;
+  boeNo?: string;
+  paymentId?: string; // linked Payment
+  paymentRef?: string;
+  debitNoteId?: string; // linked Debit Note
+  debitNoteNo?: string;
+  settledFC: number;
+  billRate: number;
+  paymentRate: number;
+  realizedGainLossINR: number; // positive = Gain (Credit adjustment to P&L), negative = Loss
+  transferredToLedger: boolean;
+  transferredAt?: string;
+  voucherNo?: string; // e.g. "JV-FX-2026-0001"
+  remarks?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface OpeningBalance {
   id: string;
   companyId: string;
@@ -588,4 +614,5 @@ export interface AppDatabase {
   shipments?: ShipmentPlan[];
   igcrLots?: IGCRLot[];
   igcrConsumptions?: IGCRConsumption[];
+  forexAdjustments?: ForexAdjustmentEntry[];
 }

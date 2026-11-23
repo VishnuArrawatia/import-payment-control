@@ -470,7 +470,8 @@ export const PaymentScreen: React.FC = () => {
                     <tr key={p.id} className={`hover:bg-slate-50/80 transition-colors ${isOpenLC ? 'bg-amber-50/30' : ''}`}>
                       <td className="px-3 py-2.5 font-bold text-slate-900">{comp?.code}</td>
                       <td className="px-3 py-2.5 font-medium text-slate-800">
-                        {bank?.bankName} - {bank?.accountNumber.slice(-4)}
+                        <div className="font-bold text-slate-900">{bank?.bankName}</div>
+                        <div className="text-[10px] text-indigo-700 font-mono font-semibold">A/c: {bank?.accountNumber}</div>
                       </td>
                       <td className="px-3 py-2.5 text-slate-700">{formatDate(p.paymentDate)}</td>
                       <td className="px-3 py-2.5">
@@ -708,7 +709,7 @@ export const PaymentScreen: React.FC = () => {
                     <option value="">-- Select Bank Account --</option>
                     {activeBankAccounts.map(b => (
                       <option key={b.id} value={b.id}>
-                        {b.bankName} - {b.accountNumber.slice(-4)} ({b.branch})
+                        {b.bankName} — A/c: {b.accountNumber} ({b.branch})
                       </option>
                     ))}
                   </select>

@@ -84,6 +84,7 @@ export function normalizeDatabase(raw: AppDatabase): AppDatabase {
     shipments: Array.isArray(raw.shipments) ? raw.shipments : [],
     igcrLots: Array.isArray(raw.igcrLots) ? raw.igcrLots : [],
     igcrConsumptions: Array.isArray(raw.igcrConsumptions) ? raw.igcrConsumptions : [],
+    forexAdjustments: Array.isArray(raw.forexAdjustments) ? raw.forexAdjustments : [],
   };
 }
 

@@ -274,7 +274,7 @@ export const MastersScreen: React.FC = () => {
                     <td className="px-4 py-2.5 font-bold text-slate-900">{comp?.code}</td>
                     <td className="px-4 py-2.5 font-semibold text-slate-900">{b.bankName} ({b.branch})</td>
                     <td className="px-4 py-2.5">{b.accountNumber}</td>
-                    <td className="px-4 py-2.5 font-bold text-indigo-700">{b.bankName} - {b.accountNumber.slice(-4)}</td>
+                    <td className="px-4 py-2.5 font-bold text-indigo-700">{b.bankName} ({b.accountNumber})</td>
                     <td className="px-4 py-2.5">{b.adCode || '-'}</td>
                     <td className="px-4 py-2.5 text-center">
                       <span className={`px-2 py-0.5 rounded text-[10px] ${b.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>

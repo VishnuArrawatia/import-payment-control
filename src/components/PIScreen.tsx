@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { ProformaInvoice, PaymentTerms, PIItemLine } from '../types';
 import { formatFC, formatDate, round2 } from '../utils/formatters';
 import { exportToExcel } from '../utils/excel';
-import { Plus, Download, Copy, Search, CheckCircle2, AlertCircle, FileText, Trash2 } from 'lucide-react';
+import { Plus, Download, Copy, Search, CheckCircle2, AlertCircle, FileText, Trash2, FileSpreadsheet } from 'lucide-react';
+import { ExcelBatchGridModal } from './ExcelBatchGridModal';
 
 export const PIScreen: React.FC = () => {
   const { db, engineResult, selectedCompanyId, savePI } = useApp();
@@ -12,6 +13,7 @@ export const PIScreen: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingPI, setEditingPI] = useState<ProformaInvoice | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -213,6 +215,15 @@ export const PIScreen: React.FC = () => {
           >
             <Download className="w-3.5 h-3.5" />
             <span>Excel</span>
+          </button>
+
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="flex items-center space-x-1 text-xs px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg border border-emerald-300 transition-colors cursor-pointer"
+            title="Batch upload Proforma Invoices from Excel"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Upload PI Register</span>
           </button>
 
           {permissions.canCreatePI ? (
@@ -509,7 +520,14 @@ export const PIScreen: React.FC = () => {
 
                 {/* PI Value FC */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">PI Value (Foreign Currency) *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-slate-700">PI Value (Foreign Currency) *</label>
+                    {editingPI && (engineResult.piStates.get(editingPI.id)?.totalPaidFC || 0) > 0 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        Paid: {formatFC(engineResult.piStates.get(editingPI.id)?.totalPaidFC)} {formData.currency}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     step="0.01"
@@ -519,6 +537,30 @@ export const PIScreen: React.FC = () => {
                     className="w-full text-xs p-2 rounded border border-slate-300 font-bold focus:ring-1 focus:ring-indigo-500"
                     required
                   />
+                  {editingPI && (engineResult.piStates.get(editingPI.id)?.totalPaidFC || 0) > 0 && (
+                    <div className="mt-1.5 p-2 rounded-lg bg-indigo-50/80 border border-indigo-200 text-[11px] space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600 font-medium">Paid by Treasury:</span>
+                        <span className="font-bold text-emerald-700 font-mono">
+                          {formatFC(engineResult.piStates.get(editingPI.id)?.totalPaidFC)} {formData.currency}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600 font-medium">Balance Payable:</span>
+                        <span className={(formData.piValueFC || 0) >= (engineResult.piStates.get(editingPI.id)?.totalPaidFC || 0) ? 'font-bold text-indigo-700 font-mono' : 'font-bold text-amber-800 font-mono'}>
+                          {formatFC(Math.max(0, (formData.piValueFC || 0) - (engineResult.piStates.get(editingPI.id)?.totalPaidFC || 0)))} {formData.currency}
+                          {(formData.piValueFC || 0) < (engineResult.piStates.get(editingPI.id)?.totalPaidFC || 0) && (
+                            <span className="text-[10px] ml-1 text-amber-700 font-normal">
+                              (Excess Advance Paid: {formatFC((engineResult.piStates.get(editingPI.id)?.totalPaidFC || 0) - (formData.piValueFC || 0))})
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-indigo-600 font-medium pt-0.5">
+                        ✓ PI Value is fully editable after payments. Open order and advance knock-offs update dynamically.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Advance % */}
@@ -826,6 +868,12 @@ export const PIScreen: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Excel Batch Upload Modal */}
+      <ExcelBatchGridModal
+        isOpen={showUploadModal}
+        initialEntity="pi"
+        onClose={() => setShowUploadModal(false)}
+      />
     </div>
   );
 };

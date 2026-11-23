@@ -18,14 +18,31 @@ import {
   CheckCircle2,
   FileSpreadsheet,
   BookOpen,
+  Plus,
+  CheckSquare,
+  Square,
+  ArrowRight,
+  X,
+  FileCheck2,
+  Receipt,
+  AlertCircle,
+  Check,
 } from 'lucide-react';
+import { ForexAdjustmentEntry } from '../types';
 
 interface FxGainLossScreenProps {
   onNavigateToLedger?: (vendorCode: string) => void;
 }
 
 export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateToLedger }) => {
-  const { db, engineResult, selectedCompanyId, asOfDate } = useApp();
+  const {
+    db,
+    engineResult,
+    selectedCompanyId,
+    asOfDate,
+    saveForexAdjustment,
+    transferForexToLedger,
+  } = useApp();
 
   // Local filter states
   const [activeTab, setActiveTab] = useState<'realized' | 'unrealized' | 'supplier_summary'>('realized');
@@ -33,6 +50,28 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
   const [fromDate, setFromDate] = useState<string>('2026-04-01');
   const [toDate, setToDate] = useState<string>(asOfDate || new Date().toISOString().split('T')[0]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Transfer & Selection State
+  const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set());
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [transferToast, setTransferToast] = useState<{ message: string; count: number } | null>(null);
+
+  // Manual Adjustment Form State
+  const [manualForm, setManualForm] = useState({
+    companyId: selectedCompanyId !== 'ALL' ? selectedCompanyId : db.companies[0]?.id || '',
+    supplierId: db.suppliers[0]?.id || '',
+    currency: 'USD',
+    date: new Date().toISOString().split('T')[0],
+    ciId: '',
+    paymentId: '',
+    debitNoteId: '',
+    settledFC: 0,
+    billRate: 88.0,
+    paymentRate: 87.5,
+    realizedGainLossINR: 0,
+    remarks: '',
+    autoTransfer: true,
+  });
 
   // Year-End MTM Valuation Rates (Defaults from Month-End rate master or reasonable defaults)
   const defaultUsdMtmRate = useMemo(() => {
@@ -93,8 +132,19 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
         if (!str.includes(q)) continue;
       }
 
+      const fxEntry = (db.forexAdjustments || []).find(fa => fa.allocationId === alloc.id || fa.id === alloc.id);
+      const isTransferred = fxEntry?.transferredToLedger || false;
+      const voucherNo = fxEntry?.voucherNo || (isTransferred ? 'JV-FX-TRANSFERRED' : undefined);
+
       rows.push({
         id: alloc.id,
+        adjId: fxEntry?.id,
+        isManual: false,
+        isTransferred,
+        voucherNo,
+        allocationId: alloc.id,
+        supplierId: alloc.supplierId,
+        companyId: alloc.companyId,
         companyCode: comp?.code || 'SVN',
         vendorCode: supp?.vendorCode || 'V-UNK',
         supplierName: supp?.supplierName || 'Unknown Supplier',
@@ -107,7 +157,7 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
         billRate,
         billValueINR,
         paymentDate: alloc.paymentDate,
-        bankName: bank ? `${bank.bankName} (${bank.accountNumber.slice(-4)})` : 'Bank Outward',
+        bankName: bank ? `${bank.bankName} (A/c: ${bank.accountNumber})` : 'Bank Outward',
         bankRefNo: pmt?.bankReferenceNo || '-',
         utrNo: utrNo || '-',
         swiftNo: swiftNo || '-',
@@ -118,9 +168,61 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
       });
     }
 
+    // Append manual forex adjustments
+    for (const fa of db.forexAdjustments || []) {
+      if (fa.allocationId) continue; // already linked to an allocation
+      if (selectedCompanyId !== 'ALL' && fa.companyId !== selectedCompanyId) continue;
+      if (currencyFilter !== 'ALL' && fa.currency !== currencyFilter) continue;
+      if (fa.date && (fa.date < fromDate || fa.date > toDate)) continue;
+
+      const supp = supplierMap.get(fa.supplierId);
+      const comp = companyMap.get(fa.companyId);
+
+      const docNo = fa.ciNo || 'Manual Bill';
+      const boeNo = fa.boeNo || '-';
+      const utrNo = fa.paymentRef || fa.voucherNo || (fa.debitNoteNo ? `DN: ${fa.debitNoteNo}` : '-');
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const str = `${supp?.vendorCode || ''} ${supp?.supplierName || ''} ${docNo} ${boeNo} ${utrNo}`.toLowerCase();
+        if (!str.includes(q)) continue;
+      }
+
+      rows.push({
+        id: fa.id,
+        adjId: fa.id,
+        isManual: true,
+        isTransferred: fa.transferredToLedger,
+        voucherNo: fa.voucherNo,
+        allocationId: undefined,
+        supplierId: fa.supplierId,
+        companyId: fa.companyId,
+        companyCode: comp?.code || 'SVN',
+        vendorCode: supp?.vendorCode || 'V-UNK',
+        supplierName: supp?.supplierName || 'Unknown Supplier',
+        currency: fa.currency,
+        docNo,
+        docDate: fa.date,
+        boeNo,
+        boeDate: fa.date,
+        settledFC: fa.settledFC,
+        billRate: fa.billRate,
+        billValueINR: Math.round(fa.settledFC * fa.billRate),
+        paymentDate: fa.date,
+        bankName: fa.debitNoteNo ? `Debit Note (${fa.debitNoteNo})` : (fa.paymentRef ? `Payment (${fa.paymentRef})` : 'Manual Settlement'),
+        bankRefNo: fa.paymentRef || '-',
+        utrNo: utrNo,
+        swiftNo: '-',
+        paidRate: fa.paymentRate,
+        paidValueINR: Math.round(fa.settledFC * fa.paymentRate),
+        realizedGL: fa.realizedGainLossINR,
+        isGain: fa.realizedGainLossINR >= 0,
+      });
+    }
+
     // Sort by payment date descending
     return rows.sort((a, b) => (b.paymentDate || '').localeCompare(a.paymentDate || ''));
-  }, [engineResult.allocations, selectedCompanyId, currencyFilter, fromDate, toDate, searchQuery, supplierMap, companyMap, paymentMap, bankMap, ciMap, obMap]);
+  }, [engineResult.allocations, db.forexAdjustments, selectedCompanyId, currencyFilter, fromDate, toDate, searchQuery, supplierMap, companyMap, paymentMap, bankMap, ciMap, obMap]);
 
   // 2. YEAR-END UNREALIZED (MTM) REVALUATION WORKING (OPEN BILLS & ADVANCES)
   const unrealizedRows = useMemo(() => {
@@ -398,6 +500,160 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
       unrealizedCount: unrealizedRows.length,
     };
   }, [realizedRows, unrealizedRows]);
+
+  // Handle Single Push to Supplier Ledger
+  const handlePushSingle = (r: any) => {
+    const now = new Date().toISOString();
+    const existing = (db.forexAdjustments || []).find(fa => fa.allocationId === r.id || fa.id === r.id);
+    const voucher = existing?.voucherNo || `JV-FX-${Date.now().toString().slice(-5)}`;
+
+    if (!existing) {
+      const newId = `fa-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      const newEntry: ForexAdjustmentEntry = {
+        id: newId,
+        companyId: r.companyId,
+        supplierId: r.supplierId,
+        currency: r.currency,
+        date: r.paymentDate || now.split('T')[0],
+        allocationId: r.id,
+        ciNo: r.docNo,
+        boeNo: r.boeNo,
+        paymentRef: r.utrNo,
+        settledFC: r.settledFC,
+        billRate: r.billRate,
+        paymentRate: r.paidRate,
+        realizedGainLossINR: r.realizedGL,
+        transferredToLedger: true,
+        transferredAt: now,
+        voucherNo: voucher,
+        remarks: `Forex Gain/Loss pushed from Realized Working Sheet for ${r.docNo}`,
+        createdAt: now,
+        updatedAt: now,
+      };
+      saveForexAdjustment(newEntry);
+    } else {
+      transferForexToLedger([existing.id]);
+    }
+
+    setTransferToast({ message: `Pushed ${r.docNo} to Supplier Ledger (${voucher})!`, count: 1 });
+    setTimeout(() => setTransferToast(null), 4000);
+  };
+
+  // Handle Bulk Push to Supplier Ledger
+  const handlePushBulk = () => {
+    if (selectedRowIds.size === 0) return;
+    const now = new Date().toISOString();
+    let count = 0;
+
+    realizedRows.forEach(r => {
+      if (selectedRowIds.has(r.id) && !r.isTransferred) {
+        count++;
+        const existing = (db.forexAdjustments || []).find(fa => fa.allocationId === r.id || fa.id === r.id);
+        const voucher = existing?.voucherNo || `JV-FX-${Date.now().toString().slice(-5)}-${count}`;
+        if (!existing) {
+          const newId = `fa-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+          saveForexAdjustment({
+            id: newId,
+            companyId: r.companyId,
+            supplierId: r.supplierId,
+            currency: r.currency,
+            date: r.paymentDate || now.split('T')[0],
+            allocationId: r.id,
+            ciNo: r.docNo,
+            boeNo: r.boeNo,
+            paymentRef: r.utrNo,
+            settledFC: r.settledFC,
+            billRate: r.billRate,
+            paymentRate: r.paidRate,
+            realizedGainLossINR: r.realizedGL,
+            transferredToLedger: true,
+            transferredAt: now,
+            voucherNo: voucher,
+            remarks: `Forex Gain/Loss bulk transferred for ${r.docNo}`,
+            createdAt: now,
+            updatedAt: now,
+          });
+        } else {
+          transferForexToLedger([existing.id]);
+        }
+      }
+    });
+
+    setTransferToast({ message: `Transferred ${selectedRowIds.size} entries to Supplier Ledger!`, count: selectedRowIds.size });
+    setSelectedRowIds(new Set());
+    setTimeout(() => setTransferToast(null), 4500);
+  };
+
+  // Handle Save Manual Forex Adjustment
+  const handleSaveManualAdjustment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualForm.supplierId || manualForm.settledFC <= 0) {
+      alert('Please select a supplier and enter a valid settled amount FC (> 0).');
+      return;
+    }
+
+    const supp = supplierMap.get(manualForm.supplierId);
+    const selectedCI = db.commercialInvoices.find(c => c.id === manualForm.ciId);
+    const selectedPmt = db.payments.find(p => p.id === manualForm.paymentId);
+    const selectedDN = db.debitNotes.find(d => d.id === manualForm.debitNoteId);
+
+    const now = new Date().toISOString();
+    const newId = `fa-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const voucher = `JV-FX-${Date.now().toString().slice(-5)}`;
+
+    const newEntry: ForexAdjustmentEntry = {
+      id: newId,
+      companyId: manualForm.companyId,
+      supplierId: manualForm.supplierId,
+      currency: manualForm.currency,
+      date: manualForm.date,
+      ciId: selectedCI?.id,
+      ciNo: selectedCI?.ciNo || (manualForm.ciId ? 'Bill' : undefined),
+      boeNo: selectedCI?.boeNo,
+      paymentId: selectedPmt?.id,
+      paymentRef: selectedPmt?.utrSwiftRef || selectedPmt?.bankReferenceNo,
+      debitNoteId: selectedDN?.id,
+      debitNoteNo: selectedDN?.dnNo,
+      settledFC: manualForm.settledFC,
+      billRate: manualForm.billRate,
+      paymentRate: manualForm.paymentRate,
+      realizedGainLossINR: manualForm.realizedGainLossINR,
+      transferredToLedger: manualForm.autoTransfer,
+      transferredAt: manualForm.autoTransfer ? now : undefined,
+      voucherNo: voucher,
+      remarks: manualForm.remarks || `Manual bill-to-bill FX adjustment for ${supp?.supplierName}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    saveForexAdjustment(newEntry);
+    setShowManualModal(false);
+    setTransferToast({
+      message: manualForm.autoTransfer
+        ? `Saved and transferred FX Adjustment to Supplier Ledger (${voucher})!`
+        : `Saved manual FX working entry (${voucher})!`,
+      count: 1,
+    });
+    setTimeout(() => setTransferToast(null), 4500);
+  };
+
+  // Excel Multi-Sheet Export for Auditors
+  const toggleSelectRow = (id: string) => {
+    setSelectedRowIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedRowIds.size === realizedRows.length) {
+      setSelectedRowIds(new Set());
+    } else {
+      setSelectedRowIds(new Set(realizedRows.map(r => r.id)));
+    }
+  };
 
   // Excel Multi-Sheet Export for Auditors
   const handleExportAuditorExcel = () => {
@@ -751,7 +1007,7 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
       {/* TAB 1: BILL-WISE REALIZED FX TABLE */}
       {activeTab === 'realized' && (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
+          <div className="p-4 border-b border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>Bill-Wise Realized FX Gain / Loss Working</span>
@@ -763,11 +1019,50 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
                 Calculated as: <code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">Settled FC × (Bill Customs Rate − Bank Applied Wire Rate)</code>
               </p>
             </div>
-            <div className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400">
-              Total Realized FX:{' '}
-              <span className={`font-black ${totals.totRealizedINR >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                {totals.totRealizedINR >= 0 ? '+' : '−'}{formatINR(Math.abs(totals.totRealizedINR), 0, true)}
-              </span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  const firstSupp = db.suppliers[0];
+                  const firstComp = selectedCompanyId !== 'ALL' ? selectedCompanyId : db.companies[0]?.id || '';
+                  setManualForm({
+                    companyId: firstComp,
+                    supplierId: firstSupp?.id || '',
+                    currency: firstSupp?.defaultCurrency || 'USD',
+                    date: new Date().toISOString().split('T')[0],
+                    ciId: '',
+                    paymentId: '',
+                    debitNoteId: '',
+                    settledFC: 0,
+                    billRate: 88.0,
+                    paymentRate: 87.5,
+                    realizedGainLossINR: 0,
+                    remarks: '',
+                    autoTransfer: true,
+                  });
+                  setShowManualModal(true);
+                }}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-all active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ Manual FX Adjustment</span>
+              </button>
+              {selectedRowIds.size > 0 && (
+                <button
+                  type="button"
+                  onClick={handlePushBulk}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-all active:scale-95 animate-pulse"
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Push to Supplier Ledger ({selectedRowIds.size})</span>
+                </button>
+              )}
+              <div className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-3">
+                Total Realized FX:{' '}
+                <span className={`font-black ${totals.totRealizedINR >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                  {totals.totRealizedINR >= 0 ? '+' : '−'}{formatINR(Math.abs(totals.totRealizedINR), 0, true)}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -775,6 +1070,15 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
             <table className="w-full text-left text-xs border-collapse">
               <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider sticky top-0 z-10 backdrop-blur-md">
                 <tr>
+                  <th className="p-3 w-8">
+                    <input
+                      type="checkbox"
+                      checked={realizedRows.length > 0 && selectedRowIds.size === realizedRows.length}
+                      onChange={toggleSelectAll}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      title="Select all rows"
+                    />
+                  </th>
                   <th className="p-3">#</th>
                   <th className="p-3">Company</th>
                   <th className="p-3">Vendor</th>
@@ -790,18 +1094,27 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
                   <th className="p-3 text-right">Paid INR</th>
                   <th className="p-3 text-right">Realized FX Gain / (Loss)</th>
                   <th className="p-3 text-center">Classification</th>
+                  <th className="p-3 text-center">Push To Ledger</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-mono text-slate-700 dark:text-slate-300">
                 {realizedRows.length === 0 ? (
                   <tr>
-                    <td colSpan={15} className="p-8 text-center text-slate-400 font-sans">
+                    <td colSpan={17} className="p-8 text-center text-slate-400 font-sans">
                       No realized payment allocations found in selected date range. Record payments against CIs or adjust filters.
                     </td>
                   </tr>
                 ) : (
                   realizedRows.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={r.id} className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${selectedRowIds.has(r.id) ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}`}>
+                      <td className="p-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedRowIds.has(r.id)}
+                          onChange={() => toggleSelectRow(r.id)}
+                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                      </td>
                       <td className="p-3 text-slate-400 font-sans">{i + 1}</td>
                       <td className="p-3 font-bold font-sans">{r.companyCode}</td>
                       <td className="p-3 font-sans">
@@ -843,6 +1156,24 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
                           {r.isGain ? 'GAIN (+)' : 'LOSS (−)'}
                         </span>
                       </td>
+                      <td className="p-3 text-center">
+                        {r.isTransferred ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-bold">
+                            <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span>Transferred ({r.voucherNo || 'JV-FX'})</span>
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handlePushSingle(r)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-[10px] font-bold cursor-pointer transition-all active:scale-95"
+                            title="Tick to transfer this Gain/Loss voucher directly into Supplier Ledger"
+                          >
+                            <CheckSquare className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                            <span>Tick to Push ➔</span>
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -850,7 +1181,7 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
               {realizedRows.length > 0 && (
                 <tfoot className="bg-slate-100 dark:bg-slate-800 font-bold text-slate-900 dark:text-white border-t-2 border-slate-300 dark:border-white/20 sticky bottom-0 z-10">
                   <tr>
-                    <td colSpan={6} className="p-3 uppercase text-right tracking-wider font-sans">
+                    <td colSpan={7} className="p-3 uppercase text-right tracking-wider font-sans">
                       Totals ({realizedRows.length} Allocations):
                     </td>
                     <td className="p-3 text-right font-black font-mono">{formatFC(totals.totSettledFC)}</td>
@@ -864,6 +1195,7 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
                     <td className="p-3 text-center text-[10px] font-sans font-bold">
                       {totals.totRealizedINR >= 0 ? 'NET GAIN' : 'NET LOSS'}
                     </td>
+                    <td className="p-3 text-center">-</td>
                   </tr>
                 </tfoot>
               )}
@@ -1105,6 +1437,347 @@ export const FxGainLossScreen: React.FC<FxGainLossScreenProps> = ({ onNavigateTo
                 </tfoot>
               )}
             </table>
+          </div>
+        </div>
+      )}
+      {/* Toast Notification */}
+      {transferToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-bold">{transferToast.message}</div>
+            <div className="text-[11px] text-slate-400">Supplier Ledger automatically synchronized.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Manual FX Gain / Loss Adjustment Modal */}
+      {showManualModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden">
+            <div className="p-5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-gradient-to-r from-indigo-50/50 to-white dark:from-slate-800 dark:to-slate-900">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                  <Calculator className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Manual FX Gain / Loss Bill-to-Bill Adjustment
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Adjust realized exchange difference against Commercial Invoices, Payments, and Debit Notes
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowManualModal(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveManualAdjustment} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Company */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Company Entity
+                  </label>
+                  <select
+                    value={manualForm.companyId}
+                    onChange={e => setManualForm({ ...manualForm, companyId: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    {db.companies.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.fullName || c.code} ({c.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Supplier */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Supplier (Party)
+                  </label>
+                  <select
+                    value={manualForm.supplierId}
+                    onChange={e => {
+                      const supp = db.suppliers.find(s => s.id === e.target.value);
+                      setManualForm({
+                        ...manualForm,
+                        supplierId: e.target.value,
+                        currency: supp?.defaultCurrency || 'USD',
+                        ciId: '',
+                        paymentId: '',
+                        debitNoteId: '',
+                      });
+                    }}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    {db.suppliers.map(s => (
+                      <option key={s.id} value={s.id}>
+                        {s.vendorCode} - {s.supplierName} ({s.defaultCurrency})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Bill / Commercial Invoice */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Select Bill (CI / BOE)
+                  </label>
+                  <select
+                    value={manualForm.ciId}
+                    onChange={e => {
+                      const ci = db.commercialInvoices.find(c => c.id === e.target.value);
+                      const billRate = ci?.boeExchangeRate || manualForm.billRate;
+                      const settled = ci?.ciValueFC || manualForm.settledFC;
+                      const gl = Math.round(settled * (billRate - manualForm.paymentRate));
+                      setManualForm({
+                        ...manualForm,
+                        ciId: e.target.value,
+                        billRate,
+                        currency: ci?.currency || manualForm.currency,
+                        settledFC: settled,
+                        realizedGainLossINR: gl,
+                      });
+                    }}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">-- Choose CI / BOE Bill (Optional) --</option>
+                    {db.commercialInvoices
+                      .filter(ci => ci.supplierId === manualForm.supplierId)
+                      .map(ci => (
+                        <option key={ci.id} value={ci.id}>
+                          {ci.ciNo} (BOE: {ci.boeNo || 'N/A'}) - {formatFC(ci.ciValueFC)} {ci.currency} @ ₹{ci.boeExchangeRate}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                {/* Payment Reference */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Settlement Payment Ref
+                  </label>
+                  <select
+                    value={manualForm.paymentId}
+                    onChange={e => {
+                      const pmt = db.payments.find(p => p.id === e.target.value);
+                      const paymentRate = pmt?.actualExchangeRate || manualForm.paymentRate;
+                      const gl = Math.round(manualForm.settledFC * (manualForm.billRate - paymentRate));
+                      setManualForm({
+                        ...manualForm,
+                        paymentId: e.target.value,
+                        paymentRate,
+                        realizedGainLossINR: gl,
+                      });
+                    }}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">-- Choose Payment Voucher (Optional) --</option>
+                    {db.payments
+                      .filter(p => p.supplierId === manualForm.supplierId)
+                      .map(p => (
+                        <option key={p.id} value={p.id}>
+                          {p.bankReferenceNo || p.utrNo || 'Payment'} - {formatFC(p.amountFC)} {p.currency} @ ₹{p.actualExchangeRate} ({p.paymentDate})
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                {/* Debit Note Reference */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Debit Note (Optional Adjustment)
+                  </label>
+                  <select
+                    value={manualForm.debitNoteId}
+                    onChange={e => setManualForm({ ...manualForm, debitNoteId: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">-- None / No Debit Note --</option>
+                    {(db.debitNotes || [])
+                      .filter(dn => dn.supplierId === manualForm.supplierId)
+                      .map(dn => (
+                        <option key={dn.id} value={dn.id}>
+                          {dn.dnNo} - {formatFC(dn.amountFC)} {dn.currency} ({dn.reason})
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                {/* Date */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Adjustment Date
+                  </label>
+                  <input
+                    type="date"
+                    value={manualForm.date}
+                    onChange={e => setManualForm({ ...manualForm, date: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Rate & FC Calculations */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-white/5 space-y-3">
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                  <span>Exchange Rate & Valuation Breakdown</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 font-bold">
+                    Currency: {manualForm.currency}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                      Settled FC Amount
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={manualForm.settledFC || ''}
+                      onChange={e => {
+                        const val = parseFloat(e.target.value) || 0;
+                        const gl = Math.round(val * (manualForm.billRate - manualForm.paymentRate));
+                        setManualForm({
+                          ...manualForm,
+                          settledFC: val,
+                          realizedGainLossINR: gl,
+                        });
+                      }}
+                      placeholder="0.00"
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                      Bill Booking Rate (₹)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={manualForm.billRate || ''}
+                      onChange={e => {
+                        const val = parseFloat(e.target.value) || 0;
+                        const gl = Math.round(manualForm.settledFC * (val - manualForm.paymentRate));
+                        setManualForm({
+                          ...manualForm,
+                          billRate: val,
+                          realizedGainLossINR: gl,
+                        });
+                      }}
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                      Settlement / Paid Rate (₹)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={manualForm.paymentRate || ''}
+                      onChange={e => {
+                        const val = parseFloat(e.target.value) || 0;
+                        const gl = Math.round(manualForm.settledFC * (manualForm.billRate - val));
+                        setManualForm({
+                          ...manualForm,
+                          paymentRate: val,
+                          realizedGainLossINR: gl,
+                        });
+                      }}
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Net FX Calculation Output Banner */}
+                <div className={`p-3.5 rounded-xl border flex items-center justify-between ${
+                  manualForm.realizedGainLossINR >= 0
+                    ? 'bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800'
+                    : 'bg-rose-50 text-rose-900 border-rose-200 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-800'
+                }`}>
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-wider">
+                      {manualForm.realizedGainLossINR >= 0 ? 'Foreign Exchange Gain (+)' : 'Foreign Exchange Loss (−)'}
+                    </div>
+                    <div className="text-[10px] opacity-80 mt-0.5">
+                      Formula: {formatFC(manualForm.settledFC)} × (₹{manualForm.billRate} − ₹{manualForm.paymentRate})
+                    </div>
+                  </div>
+                  <div className="text-xl font-mono font-black">
+                    {manualForm.realizedGainLossINR >= 0 ? '+' : '−'}₹{Math.abs(manualForm.realizedGainLossINR).toLocaleString('en-IN')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Remarks */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Narration / Remarks
+                </label>
+                <input
+                  type="text"
+                  value={manualForm.remarks}
+                  onChange={e => setManualForm({ ...manualForm, remarks: e.target.value })}
+                  placeholder="e.g. Bill to bill adjustment against CI-449 and UTR settlement rate diff"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              {/* Confirmation Checkbox for Ledger Transfer */}
+              <div className="p-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-2xl border border-indigo-200 dark:border-indigo-800/60 flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="autoTransferCheckbox"
+                  checked={manualForm.autoTransfer}
+                  onChange={e => setManualForm({ ...manualForm, autoTransfer: e.target.checked })}
+                  className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer h-4 w-4"
+                />
+                <label htmlFor="autoTransferCheckbox" className="text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+                  <span className="font-bold text-indigo-900 dark:text-indigo-200 block">
+                    Push directly to Supplier Ledger after confirmation
+                  </span>
+                  <span>
+                    When checked, an official Journal Voucher (<code className="font-mono text-indigo-700 dark:text-indigo-300">JV-FX-...</code>) is immediately posted to the supplier's party ledger.
+                  </span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowManualModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save & Apply FX Adjustment</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

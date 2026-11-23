@@ -18,7 +18,9 @@ import {
   AlertTriangle,
   AlertCircle,
   FileCheck,
+  FileSpreadsheet,
 } from 'lucide-react';
+import { ExcelBatchGridModal } from './ExcelBatchGridModal';
 
 type SortField =
   | 'boeDate'
@@ -51,6 +53,7 @@ export const BOERegisterScreen: React.FC = () => {
 
   // Edit BOE & Customs Tax Modal
   const [editingCi, setEditingCi] = useState<CommercialInvoice | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [formState, setFormState] = useState({
     boeNo: '',
@@ -391,6 +394,15 @@ export const BOERegisterScreen: React.FC = () => {
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print / PDF</span>
+          </button>
+
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="flex items-center space-x-1.5 text-xs px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl border border-emerald-300 transition-colors shadow-xs cursor-pointer"
+            title="Batch upload Customs BOE Register from Excel"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Upload BOE Register</span>
           </button>
 
           <button
@@ -1000,6 +1012,12 @@ export const BOERegisterScreen: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Excel Batch Upload Modal */}
+      <ExcelBatchGridModal
+        isOpen={showUploadModal}
+        initialEntity="ci"
+        onClose={() => setShowUploadModal(false)}
+      />
     </div>
   );
 };
